@@ -10,15 +10,15 @@ const Event = sequelize.define(
       autoIncrement: true,
     },
     title: {
-      type: DataTypes.STRING(255),
+      type: DataTypes.STRING(200),
       allowNull: false,
       validate: {
-        len: [1, 255],
+        len: [1, 200],
       },
     },
     description: {
       type: DataTypes.TEXT,
-      allowNull: false,
+      allowNull: true,
     },
     start_time: {
       type: DataTypes.DATE,
@@ -28,26 +28,51 @@ const Event = sequelize.define(
       type: DataTypes.DATE,
       allowNull: false,
     },
-    registration_deadline: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-    place: {
-      type: DataTypes.STRING(500),
-      allowNull: false,
+    location: {
+      type: DataTypes.STRING(200),
+      allowNull: true,
     },
     is_capacity_limited: {
       type: DataTypes.BOOLEAN,
-      defaultValue: false,
+      allowNull: false,
+      defaultValue: true,
     },
     max_participants: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      defaultValue: null,
       validate: {
-        min: 1,
+        isValidMaxParticipants(value) {
+          if (this.is_capacity_limited && (value === null || value === undefined)) {
+            throw new Error("當限制人數時，最大參與人數不能為空");
+          }
+          if (!this.is_capacity_limited && value !== null) {
+            throw new Error("當不限制人數時，最大參與人數必須為空");
+          }
+          if (value !== null && value < 1) {
+            throw new Error("最大參與人數必須大於0");
+          }
+        },
       },
     },
-    created_by: {
+    current_participants: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+      validate: {
+        min: 0,
+      },
+    },
+    registration_deadline: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    status: {
+      type: DataTypes.ENUM("upcoming", "ongoing", "completed", "cancelled"),
+      allowNull: false,
+      defaultValue: "upcoming",
+    },
+    administrator_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
@@ -55,23 +80,28 @@ const Event = sequelize.define(
         key: "id",
       },
     },
-    is_active: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: true,
-    },
   },
   {
     tableName: "events",
     timestamps: true,
     hooks: {
       beforeValidate: (event) => {
-        // 確保結束時間晚於開始時間
+        // 根據 is_capacity_limited 自動設置 max_participants
+        if (!event.is_capacity_limited) {
+          event.max_participants = null;
+        } else if (event.is_capacity_limited && event.max_participants === null) {
+          // 如果限制人數但沒有設置，使用預設值
+          event.max_participants = 50;
+        }
+      },
+      beforeSave: (event) => {
+        // 確保 start_time 早於 end_time
         if (
           event.start_time &&
           event.end_time &&
           event.start_time >= event.end_time
         ) {
-          throw new Error("結束時間必須晚於開始時間");
+          throw new Error("活動開始時間必須早於結束時間");
         }
         // 確保報名截止時間早於活動開始時間
         if (
@@ -81,9 +111,13 @@ const Event = sequelize.define(
         ) {
           throw new Error("報名截止時間必須早於或等於活動開始時間");
         }
-        // 如果有設定人數上限，則max_participants不能為空
-        if (event.is_capacity_limited && !event.max_participants) {
-          throw new Error("設定人數上限時，必須指定最大參與人數");
+        // 確保當前參與人數不超過最大人數（如果有限制）
+        if (
+          event.is_capacity_limited &&
+          event.max_participants &&
+          event.current_participants > event.max_participants
+        ) {
+          throw new Error("當前參與人數不能超過最大參與人數");
         }
       },
     },

@@ -15,25 +15,28 @@ module.exports = {
     const announcementData = [
       {
         title: "歡迎使用活動管理系統",
-        description:
+        content:
           "這是一個功能完整的活動與公告管理系統，支援活動 CRUD、公告 CRUD、活動報名與報名名單查詢等功能。",
-        created_by: 1,
+        status: "active",
+        administrator_id: 1,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
         title: "系統維護通知",
-        description:
+        content:
           "系統將於每週日凌晨 2:00-4:00 進行例行維護，期間可能無法正常使用，敬請見諒。",
-        created_by: 1,
+        status: "active",
+        administrator_id: 1,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
         title: "新功能上線",
-        description:
+        content:
           "活動報名功能已正式上線，現在可以為活動設定報名截止時間和最大參與人數。",
-        created_by: 2,
+        status: "active",
+        administrator_id: 2,
         createdAt: new Date(),
         updatedAt: new Date(),
       },

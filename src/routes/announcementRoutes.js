@@ -16,7 +16,7 @@ const {
  *       type: object
  *       required:
  *         - title
- *         - description
+ *         - content
  *       properties:
  *         id:
  *           type: integer
@@ -25,7 +25,7 @@ const {
  *           type: string
  *           maxLength: 255
  *           description: 公告標題
- *         description:
+ *         content:
  *           type: string
  *           description: 公告內容
  *         created_by:
@@ -65,11 +65,6 @@ const {
  *           type: integer
  *           default: 10
  *         description: 每頁筆數
- *       - in: query
- *         name: created_by
- *         schema:
- *           type: integer
- *         description: 建立者 ID
  *     responses:
  *       200:
  *         description: 成功取得公告列表
@@ -78,64 +73,6 @@ router.get(
   "/",
   validateQuery(schemas.announcement.query),
   announcementController.getAllAnnouncements
-);
-
-/**
- * @swagger
- * /api/announcements/search:
- *   get:
- *     summary: 搜尋公告
- *     tags: [公告]
- *     parameters:
- *       - in: query
- *         name: q
- *         required: true
- *         schema:
- *           type: string
- *         description: 搜尋關鍵字
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           default: 1
- *         description: 頁碼
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 10
- *         description: 每頁筆數
- *     responses:
- *       200:
- *         description: 搜尋成功
- *       400:
- *         description: 請提供搜尋關鍵字
- */
-router.get("/search", announcementController.searchAnnouncements);
-
-/**
- * @swagger
- * /api/announcements/{id}:
- *   get:
- *     summary: 取得指定公告
- *     tags: [公告]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: 公告 ID
- *     responses:
- *       200:
- *         description: 成功取得公告
- *       404:
- *         description: 公告不存在
- */
-router.get(
-  "/:id",
-  validateParams(schemas.announcement.params),
-  announcementController.getAnnouncementById
 );
 
 /**
@@ -152,17 +89,17 @@ router.get(
  *             type: object
  *             required:
  *               - title
- *               - description
- *               - created_by
+ *               - content
+ *               - administrator_id
  *             properties:
  *               title:
  *                 type: string
  *                 maxLength: 255
  *                 description: 公告標題
- *               description:
+ *               content:
  *                 type: string
  *                 description: 公告內容
- *               created_by:
+ *               administrator_id:
  *                 type: integer
  *                 description: 建立者 ID
  *     responses:
@@ -201,12 +138,9 @@ router.post(
  *                 type: string
  *                 maxLength: 255
  *                 description: 公告標題
- *               description:
+ *               content:
  *                 type: string
  *                 description: 公告內容
- *               updated_by:
- *                 type: integer
- *                 description: 更新者 ID
  *     responses:
  *       200:
  *         description: 公告更新成功
@@ -237,21 +171,6 @@ router.put(
  *         schema:
  *           type: integer
  *         description: 公告 ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - deleted_by
- *             properties:
- *               force:
- *                 type: boolean
- *                 description: 是否強制刪除
- *               deleted_by:
- *                 type: integer
- *                 description: 刪除者 ID
  *     responses:
  *       200:
  *         description: 公告刪除成功
@@ -264,28 +183,6 @@ router.delete(
   "/:id",
   validateParams(schemas.announcement.params),
   announcementController.deleteAnnouncement
-);
-
-/**
- * @swagger
- * /api/announcements/stats/admin/{adminId}:
- *   get:
- *     summary: 取得指定管理員的公告統計
- *     tags: [公告]
- *     parameters:
- *       - in: path
- *         name: adminId
- *         required: true
- *         schema:
- *           type: integer
- *         description: 管理員 ID
- *     responses:
- *       200:
- *         description: 成功取得統計資料
- */
-router.get(
-  "/stats/admin/:adminId",
-  announcementController.getAnnouncementStats
 );
 
 module.exports = router;

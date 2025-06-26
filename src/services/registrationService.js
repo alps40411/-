@@ -1,318 +1,160 @@
 const { Registration, Event, Administrator } = require("../models");
-const { AppError } = require("../middlewares/errorMiddleware");
 const { Op } = require("sequelize");
+const moment = require("moment");
 
 class RegistrationService {
-  // 建立活動報名
+  /**
+   * 創建新報名
+   */
   async createRegistration(registrationData) {
-    const { event_id, administrator_id, participant_name } = registrationData;
+    try {
+      // 檢查活動是否存在且可報名
+      const event = await Event.findByPk(registrationData.event_id);
+      if (!event || event.status === "cancelled") {
+        return {
+          success: false,
+          message: "活動不存在或已取消",
+        };
+      }
 
-    // 檢查活動是否存在且有效
-    const event = await Event.findByPk(event_id);
-    if (!event || !event.is_active) {
-      throw new AppError("活動不存在或已停用", 404);
+      // 檢查報名是否仍開放
+      const now = new Date();
+      if (event.registration_deadline < now) {
+        return {
+          success: false,
+          message: "報名已截止",
+        };
+      }
+
+      // 檢查這個活動是否已經有其他管理員處理報名（1對1關係）
+      const existingRegistration = await Registration.findOne({
+        where: { 
+          event_id: registrationData.event_id,
+          administrator_id: { [Op.ne]: registrationData.administrator_id }
+        }
+      });
+
+      if (existingRegistration) {
+        return {
+          success: false,
+          message: "此活動已由其他管理員處理報名，每個活動只能由一位管理員負責",
+        };
+      }
+
+      // 檢查活動是否已滿
+      if (event.is_capacity_limited && event.current_participants >= event.max_participants) {
+        return {
+          success: false,
+          message: "活動報名已滿",
+        };
+      }
+
+      // 創建報名記錄
+      const registration = await Registration.create(registrationData);
+
+      // 更新活動當前參與人數
+      await event.increment("current_participants");
+
+      return {
+        success: true,
+        data: registration,
+        message: "報名成功",
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: "報名失敗",
+        error: error.message,
+      };
     }
+  }
 
-    // 檢查報名是否已截止
-    if (event.registration_deadline <= new Date()) {
-      throw new AppError("活動報名已截止", 400);
-    }
-
-    // 檢查活動是否已開始
-    if (event.start_time <= new Date()) {
-      throw new AppError("活動已開始，無法報名", 400);
-    }
-
-    // 檢查管理員是否存在
-    const administrator = await Administrator.findByPk(administrator_id);
-    if (!administrator || !administrator.is_active) {
-      throw new AppError("管理員不存在或已停用", 404);
-    }
-
-    // 檢查是否已報名過
-    const existingRegistration = await Registration.findOne({
-      where: {
-        event_id,
-        administrator_id,
-        is_active: true,
-      },
-    });
-
-    if (existingRegistration) {
-      throw new AppError("您已經報名過此活動", 400);
-    }
-
-    // 檢查是否還有名額（如果活動有人數限制）
-    if (event.is_capacity_limited && event.max_participants) {
-      const registrationCount = await Registration.count({
-        where: {
-          event_id,
-          is_active: true,
+  /**
+   * 取消報名
+   */
+  async cancelRegistration(id, administrator_id) {
+    try {
+      const registration = await Registration.findOne({
+        where: { 
+          id, 
+          administrator_id: administrator_id 
         },
       });
 
-      if (registrationCount >= event.max_participants) {
-        throw new AppError("活動名額已滿", 400);
+      if (!registration) {
+        return {
+          success: false,
+          message: "找不到指定的報名記錄或無權限操作",
+        };
       }
-    }
 
-    // 建立報名記錄
-    const registration = await Registration.create(registrationData);
-    return registration;
+      // 減少活動參與人數
+      const event = await Event.findByPk(registration.event_id);
+      if (event && event.current_participants > 0) {
+        await event.decrement("current_participants");
+      }
+
+      // 直接刪除報名記錄
+      await registration.destroy();
+
+      return {
+        success: true,
+        message: "報名記錄已刪除",
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: "刪除報名記錄失敗",
+        error: error.message,
+      };
+    }
   }
 
-  // 取得活動報名名單
+  /**
+   * 取得特定活動的報名記錄
+   */
   async getEventRegistrations(eventId, page = 1, limit = 10) {
-    const event = await Event.findByPk(eventId);
-    if (!event) {
-      throw new AppError("活動不存在", 404);
+    try {
+      const offset = (page - 1) * limit;
+      
+      const { count, rows: registrations } = await Registration.findAndCountAll({
+        where: { 
+          event_id: eventId
+        },
+        include: [
+          {
+            model: Administrator,
+            as: "administrator",
+            attributes: ["id", "username"],
+          },
+        ],
+        limit: parseInt(limit),
+        offset: parseInt(offset),
+        order: [["registration_time", "DESC"]],
+      });
+
+      return {
+        success: true,
+        data: {
+          registrations,
+          pagination: {
+            total: count,
+            page: parseInt(page),
+            limit: parseInt(limit),
+            pages: Math.ceil(count / limit),
+          },
+        },
+        message: "獲取活動報名列表成功",
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: "獲取活動報名列表失敗",
+        error: error.message,
+      };
     }
-
-    const offset = (page - 1) * limit;
-
-    const { count, rows } = await Registration.findAndCountAll({
-      where: {
-        event_id,
-        is_active: true,
-      },
-      include: [
-        {
-          model: Administrator,
-          as: "administrator",
-          attributes: ["id", "username", "phone", "line_id"],
-        },
-      ],
-      limit,
-      offset,
-      order: [["registration_time", "ASC"]],
-    });
-
-    return {
-      event: {
-        id: event.id,
-        title: event.title,
-        is_capacity_limited: event.is_capacity_limited,
-        max_participants: event.max_participants,
-        current_participants: count,
-      },
-      registrations: rows,
-      pagination: {
-        page,
-        limit,
-        total: count,
-        totalPages: Math.ceil(count / limit),
-      },
-    };
-  }
-
-  // 取得指定報名記錄
-  async getRegistrationById(id) {
-    const registration = await Registration.findByPk(id, {
-      include: [
-        {
-          model: Event,
-          as: "event",
-          attributes: ["id", "title", "start_time", "end_time", "place"],
-        },
-        {
-          model: Administrator,
-          as: "administrator",
-          attributes: ["id", "username", "phone", "line_id"],
-        },
-      ],
-    });
-
-    if (!registration) {
-      throw new AppError("報名記錄不存在", 404);
-    }
-
-    return registration;
-  }
-
-  // 取消報名
-  async cancelRegistration(id, administratorId) {
-    const registration = await Registration.findOne({
-      where: {
-        id,
-        administrator_id: administratorId,
-        is_active: true,
-      },
-    });
-
-    if (!registration) {
-      throw new AppError("報名記錄不存在或無權限取消", 404);
-    }
-
-    // 檢查活動是否已開始
-    const event = await Event.findByPk(registration.event_id);
-    if (event && event.start_time <= new Date()) {
-      throw new AppError("活動已開始，無法取消報名", 400);
-    }
-
-    await registration.update({ is_active: false });
-    return { message: "報名已成功取消" };
-  }
-
-  // 搜尋報名記錄
-  async searchRegistrations(searchTerm, page = 1, limit = 10) {
-    const offset = (page - 1) * limit;
-
-    const { count, rows } = await Registration.findAndCountAll({
-      where: {
-        [Op.or]: [{ participant_name: { [Op.like]: `%${searchTerm}%` } }],
-        is_active: true,
-      },
-      include: [
-        {
-          model: Event,
-          as: "event",
-          attributes: ["id", "title", "start_time", "end_time", "place"],
-        },
-        {
-          model: Administrator,
-          as: "administrator",
-          attributes: ["id", "username", "phone", "line_id"],
-        },
-      ],
-      limit,
-      offset,
-      order: [["registration_time", "DESC"]],
-    });
-
-    return {
-      registrations: rows,
-      pagination: {
-        page,
-        limit,
-        total: count,
-        totalPages: Math.ceil(count / limit),
-      },
-    };
-  }
-
-  // 取得報名統計
-  async getRegistrationStats() {
-    const totalRegistrations = await Registration.count({
-      where: { is_active: true },
-    });
-
-    const todayRegistrations = await Registration.count({
-      where: {
-        registration_time: {
-          [Op.gte]: new Date(new Date().setHours(0, 0, 0, 0)),
-        },
-        is_active: true,
-      },
-    });
-
-    return {
-      total: totalRegistrations,
-      today: todayRegistrations,
-    };
-  }
-
-  // 取得特定活動的報名統計
-  async getEventRegistrationStats(eventId) {
-    const event = await Event.findByPk(eventId);
-    if (!event) {
-      throw new AppError("活動不存在", 404);
-    }
-
-    const totalRegistrations = await Registration.count({
-      where: {
-        event_id: eventId,
-        is_active: true,
-      },
-    });
-
-    return {
-      event: {
-        id: event.id,
-        title: event.title,
-        is_capacity_limited: event.is_capacity_limited,
-        max_participants: event.max_participants,
-      },
-      total: totalRegistrations,
-      available:
-        event.is_capacity_limited && event.max_participants
-          ? event.max_participants - totalRegistrations
-          : null,
-    };
-  }
-
-  // 匯出報名名單
-  async exportEventRegistrations(eventId) {
-    const event = await Event.findByPk(eventId);
-    if (!event) {
-      throw new AppError("活動不存在", 404);
-    }
-
-    const registrations = await Registration.findAll({
-      where: {
-        event_id: eventId,
-        is_active: true,
-      },
-      include: [
-        {
-          model: Administrator,
-          as: "administrator",
-          attributes: ["id", "username", "phone", "line_id"],
-        },
-      ],
-      order: [["registration_time", "ASC"]],
-    });
-
-    return {
-      event: {
-        id: event.id,
-        title: event.title,
-        start_time: event.start_time,
-        end_time: event.end_time,
-        place: event.place,
-      },
-      registrations: registrations.map((reg) => ({
-        id: reg.id,
-        participant_name: reg.participant_name,
-        administrator_username: reg.administrator?.username,
-        administrator_phone: reg.administrator?.phone,
-        administrator_line_id: reg.administrator?.line_id,
-        remark: reg.remark,
-        registration_time: reg.registration_time,
-      })),
-    };
-  }
-
-  // 取得管理員的報名記錄
-  async getAdministratorRegistrations(administratorId, page = 1, limit = 10) {
-    const offset = (page - 1) * limit;
-
-    const { count, rows } = await Registration.findAndCountAll({
-      where: {
-        administrator_id: administratorId,
-        is_active: true,
-      },
-      include: [
-        {
-          model: Event,
-          as: "event",
-          attributes: ["id", "title", "start_time", "end_time", "place"],
-        },
-      ],
-      limit,
-      offset,
-      order: [["registration_time", "DESC"]],
-    });
-
-    return {
-      registrations: rows,
-      pagination: {
-        page,
-        limit,
-        total: count,
-        totalPages: Math.ceil(count / limit),
-      },
-    };
   }
 }
 
 module.exports = new RegistrationService();
+

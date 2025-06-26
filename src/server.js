@@ -15,34 +15,18 @@ async function testDatabaseConnection() {
   }
 }
 
-// 同步資料庫（開發環境）
-async function syncDatabase() {
-  try {
-    if (process.env.NODE_ENV === "development") {
-      await sequelize.sync({ alter: true });
-      console.log("✅ 資料庫同步完成");
-    }
-  } catch (error) {
-    console.error("❌ 資料庫同步失敗:", error);
-    process.exit(1);
-  }
-}
-
 // 啟動伺服器
 async function startServer() {
   try {
     // 測試資料庫連線
     await testDatabaseConnection();
 
-    // 同步資料庫（開發環境）
-    await syncDatabase();
-
     // 啟動 HTTP 伺服器
     app.listen(PORT, () => {
       console.log(`🚀 伺服器已啟動`);
       console.log(`📍 監聽端口: ${PORT}`);
       console.log(`🌍 環境: ${process.env.NODE_ENV || "development"}`);
-      console.log("swaggger: http://localhost:3000/api-docs");
+      console.log("swagger: http://localhost:3000/api-docs");
     });
   } catch (error) {
     console.error("❌ 伺服器啟動失敗:", error);

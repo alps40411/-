@@ -17,6 +17,13 @@ const Administrator = sequelize.define(
         len: [1, 50],
       },
     },
+    name: {
+      type: DataTypes.STRING(100),
+      allowNull: false,
+      validate: {
+        len: [1, 100],
+      },
+    },
     phone: {
       type: DataTypes.STRING(20),
       allowNull: false,
@@ -30,9 +37,9 @@ const Administrator = sequelize.define(
       allowNull: false,
     },
     gender: {
-      type: DataTypes.ENUM("MALE", "FEMALE", "OTHER"),
+      type: DataTypes.ENUM("M", "F"),
       allowNull: false,
-      defaultValue: "MALE",
+      defaultValue: "M",
     },
     line_id: {
       type: DataTypes.STRING(50),
@@ -42,14 +49,15 @@ const Administrator = sequelize.define(
         len: [1, 50],
       },
     },
-    is_active: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: true,
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
     },
   },
   {
     tableName: "administrators",
-    timestamps: true,
+    timestamps: false,
   }
 );
 

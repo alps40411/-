@@ -15,18 +15,20 @@ const {
  *       type: object
  *       required:
  *         - username
+ *         - name
  *         - phone
  *         - birth
  *         - gender
  *         - line_id
  *       properties:
- *         id:
- *           type: integer
- *           description: 管理員 ID
  *         username:
  *           type: string
  *           maxLength: 50
  *           description: 使用者名稱
+ *         name:
+ *           type: string
+ *           maxLength: 100
+ *           description: 姓名
  *         phone:
  *           type: string
  *           maxLength: 20
@@ -43,9 +45,18 @@ const {
  *           type: string
  *           maxLength: 50
  *           description: Line ID
- *         is_active:
- *           type: boolean
- *           description: 是否啟用
+ *     AdministratorResponse:
+ *       allOf:
+ *         - type: object
+ *           properties:
+ *             id:
+ *               type: integer
+ *               description: 管理員 ID
+ *             createdAt:
+ *               type: string
+ *               format: date-time
+ *               description: 建立時間
+ *         - $ref: '#/components/schemas/Administrator'
  */
 
 /**
@@ -100,102 +111,6 @@ router.get("/", administratorController.getAllAdministrators);
 /**
  * @swagger
  * /api/administrators/{id}:
- *   get:
- *     summary: 取得指定管理員資料
- *     tags: [管理員]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: 管理員 ID
- *     responses:
- *       200:
- *         description: 成功取得管理員資料
- *       404:
- *         description: 管理員不存在
- */
-router.get(
-  "/:id",
-  validateParams(schemas.administrator.params),
-  administratorController.getAdministratorById
-);
-
-/**
- * @swagger
- * /api/administrators/line/{lineId}:
- *   get:
- *     summary: 根據Line ID取得管理員資料
- *     tags: [管理員]
- *     parameters:
- *       - in: path
- *         name: lineId
- *         required: true
- *         schema:
- *           type: string
- *         description: Line ID
- *     responses:
- *       200:
- *         description: 成功取得管理員資料
- *       404:
- *         description: 管理員不存在
- */
-router.get("/line/:lineId", administratorController.getAdministratorByLineId);
-
-/**
- * @swagger
- * /api/administrators/{id}:
- *   put:
- *     summary: 更新管理員資料
- *     tags: [管理員]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: 管理員 ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               username:
- *                 type: string
- *                 maxLength: 50
- *               phone:
- *                 type: string
- *                 maxLength: 20
- *               birth:
- *                 type: string
- *                 format: date
- *               gender:
- *                 type: string
- *                 enum: [MALE, FEMALE, OTHER]
- *               line_id:
- *                 type: string
- *                 maxLength: 50
- *     responses:
- *       200:
- *         description: 管理員資料更新成功
- *       400:
- *         description: 請求資料驗證失敗
- *       404:
- *         description: 管理員不存在
- */
-router.put(
-  "/:id",
-  validateParams(schemas.administrator.params),
-  validate(schemas.administrator.update),
-  administratorController.updateAdministrator
-);
-
-/**
- * @swagger
- * /api/administrators/{id}:
  *   delete:
  *     summary: 刪除管理員
  *     tags: [管理員]
@@ -206,11 +121,6 @@ router.put(
  *         schema:
  *           type: integer
  *         description: 管理員 ID
- *       - in: query
- *         name: force
- *         schema:
- *           type: boolean
- *         description: 是否強制刪除
  *     responses:
  *       200:
  *         description: 管理員刪除成功

@@ -6,21 +6,21 @@ const Registration = require("./Registration");
 // 定義模型關聯
 // 管理員與公告的一對多關係
 Administrator.hasMany(Announcement, {
-  foreignKey: "created_by",
+  foreignKey: "administrator_id",
   as: "announcements",
 });
 Announcement.belongsTo(Administrator, {
-  foreignKey: "created_by",
+  foreignKey: "administrator_id",
   as: "creator",
 });
 
 // 管理員與活動的一對多關係
 Administrator.hasMany(Event, {
-  foreignKey: "created_by",
+  foreignKey: "administrator_id",
   as: "events",
 });
 Event.belongsTo(Administrator, {
-  foreignKey: "created_by",
+  foreignKey: "administrator_id",
   as: "creator",
 });
 

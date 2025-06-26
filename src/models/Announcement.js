@@ -10,27 +10,28 @@ const Announcement = sequelize.define(
       autoIncrement: true,
     },
     title: {
-      type: DataTypes.STRING(255),
+      type: DataTypes.STRING(200),
       allowNull: false,
       validate: {
-        len: [1, 255],
+        len: [1, 200],
       },
     },
-    description: {
+    content: {
       type: DataTypes.TEXT,
       allowNull: false,
     },
-    created_by: {
+    status: {
+      type: DataTypes.ENUM("active", "inactive"),
+      allowNull: false,
+      defaultValue: "active",
+    },
+    administrator_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: "administrators",
         key: "id",
       },
-    },
-    is_active: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: true,
     },
   },
   {

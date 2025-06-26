@@ -1,107 +1,105 @@
 const { Administrator } = require("../models");
-const { AppError } = require("../middlewares/errorMiddleware");
+const { Op } = require("sequelize");
+const moment = require("moment");
 
 class AdministratorService {
-  // 建立管理員
+  /**
+   * 創建新管理員
+   */
   async createAdministrator(adminData) {
     try {
       const administrator = await Administrator.create(adminData);
-      return administrator;
+      return {
+        success: true,
+        data: administrator,
+        message: "管理員創建成功",
+      };
     } catch (error) {
       if (error.name === "SequelizeUniqueConstraintError") {
-        throw new AppError("使用者名稱、手機或Line ID已存在", 400);
+        return {
+          success: false,
+          message: "用戶名、手機號或Line ID已存在",
+          error: error.message,
+        };
       }
-      throw error;
+      return {
+        success: false,
+        message: "創建管理員失敗",
+        error: error.message,
+      };
     }
   }
 
-  // 取得管理員資料
-  async getAdministratorById(id) {
-    const administrator = await Administrator.findByPk(id);
+  /**
+   * 獲取所有管理員列表（分頁）
+   */
+  async getAllAdministrators(page = 1, limit = 10, search = "") {
+    try {
+      const offset = (page - 1) * limit;
+      const where = {};
 
-    if (!administrator) {
-      throw new AppError("管理員不存在", 404);
+      if (search) {
+        where[Op.or] = [
+          { username: { [Op.iLike]: `%${search}%` } },
+          { name: { [Op.iLike]: `%${search}%` } },
+          { phone: { [Op.iLike]: `%${search}%` } },
+        ];
+      }
+
+      const { count, rows: administrators } = await Administrator.findAndCountAll({
+        where,
+        limit: parseInt(limit),
+        offset: parseInt(offset),
+        order: [["createdAt", "DESC"]],
+      });
+
+      return {
+        success: true,
+        data: {
+          administrators,
+          pagination: {
+            total: count,
+            page: parseInt(page),
+            limit: parseInt(limit),
+            pages: Math.ceil(count / limit),
+          },
+        },
+        message: "獲取管理員列表成功",
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: "獲取管理員列表失敗",
+        error: error.message,
+      };
     }
-
-    return administrator;
   }
 
-  // 更新管理員資料
-  async updateAdministrator(id, updateData) {
-    const administrator = await Administrator.findByPk(id);
-
-    if (!administrator) {
-      throw new AppError("管理員不存在", 404);
-    }
-
-    await administrator.update(updateData);
-
-    return administrator.reload();
-  }
-
-  // 取得所有管理員
-  async getAllAdministrators(page = 1, limit = 10) {
-    const offset = (page - 1) * limit;
-
-    const { count, rows } = await Administrator.findAndCountAll({
-      where: { is_active: true },
-      limit,
-      offset,
-      order: [["createdAt", "DESC"]],
-    });
-
-    return {
-      administrators: rows,
-      pagination: {
-        page,
-        limit,
-        total: count,
-        totalPages: Math.ceil(count / limit),
-      },
-    };
-  }
-
-  // 軟刪除管理員
+  /**
+   * 刪除管理員
+   */
   async deleteAdministrator(id) {
-    const administrator = await Administrator.findByPk(id);
+    try {
+      const administrator = await Administrator.findByPk(id);
+      if (!administrator) {
+        return {
+          success: false,
+          message: "找不到指定的管理員",
+        };
+      }
 
-    if (!administrator) {
-      throw new AppError("管理員不存在", 404);
+      await administrator.destroy({ force: true });
+      return {
+        success: true,
+        message: "管理員刪除成功",
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: "刪除管理員失敗",
+        error: error.message,
+      };
     }
-
-    await administrator.update({ is_active: false });
-    return { message: "管理員已成功刪除" };
-  }
-
-  // 硬刪除管理員
-  async forceDeleteAdministrator(id) {
-    const administrator = await Administrator.findByPk(id);
-
-    if (!administrator) {
-      throw new AppError("管理員不存在", 404);
-    }
-
-    await administrator.destroy();
-    return { message: "管理員已永久刪除" };
-  }
-
-  // 檢查管理員是否存在
-  async checkAdministratorExists(id) {
-    const administrator = await Administrator.findByPk(id);
-    return !!administrator;
-  }
-
-  // 根據Line ID查找管理員
-  async getAdministratorByLineId(lineId) {
-    const administrator = await Administrator.findOne({
-      where: { line_id: lineId, is_active: true },
-    });
-
-    if (!administrator) {
-      throw new AppError("管理員不存在", 404);
-    }
-
-    return administrator;
   }
 }
 

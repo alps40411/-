@@ -10,14 +10,19 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       title: {
-        type: Sequelize.STRING(255),
+        type: Sequelize.STRING(200),
         allowNull: false,
       },
-      description: {
+      content: {
         type: Sequelize.TEXT,
         allowNull: false,
       },
-      created_by: {
+      status: {
+        type: Sequelize.ENUM("active", "inactive"),
+        allowNull: false,
+        defaultValue: "active",
+      },
+      administrator_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
@@ -35,14 +40,13 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal(
-          "CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
-        ),
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
     });
 
     // 建立索引
-    await queryInterface.addIndex("announcements", ["created_at"]);
+    await queryInterface.addIndex("announcements", ["administrator_id"]);
+    await queryInterface.addIndex("announcements", ["status"]);
   },
 
   down: async (queryInterface, Sequelize) => {

@@ -39,17 +39,6 @@ const {
  *           type: string
  *           format: date-time
  *           description: 報名時間
- *         is_active:
- *           type: boolean
- *           description: 是否有效
- *         createdAt:
- *           type: string
- *           format: date-time
- *           description: 建立時間
- *         updatedAt:
- *           type: string
- *           format: date-time
- *           description: 更新時間
  *         event:
  *           $ref: '#/components/schemas/Event'
  *         administrator:
@@ -141,67 +130,9 @@ router.get(
 
 /**
  * @swagger
- * /api/registrations/search:
- *   get:
- *     summary: 搜尋報名記錄
- *     tags: [報名]
- *     parameters:
- *       - in: query
- *         name: q
- *         required: true
- *         schema:
- *           type: string
- *         description: 搜尋關鍵字
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           default: 1
- *         description: 頁碼
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 10
- *         description: 每頁筆數
- *     responses:
- *       200:
- *         description: 搜尋成功
- *       400:
- *         description: 請提供搜尋關鍵字
- */
-router.get("/search", registrationController.searchRegistrations);
-
-/**
- * @swagger
  * /api/registrations/{id}:
- *   get:
- *     summary: 取得指定報名記錄
- *     tags: [報名]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: 報名 ID
- *     responses:
- *       200:
- *         description: 成功取得報名記錄
- *       404:
- *         description: 報名記錄不存在
- */
-router.get(
-  "/:id",
-  validateParams(schemas.registration.params),
-  registrationController.getRegistrationById
-);
-
-/**
- * @swagger
- * /api/registrations/{id}/cancel:
- *   post:
- *     summary: 取消報名
+ *   delete:
+ *     summary: 刪除報名記錄
  *     tags: [報名]
  *     parameters:
  *       - in: path
@@ -224,124 +155,15 @@ router.get(
  *                 description: 管理員 ID
  *     responses:
  *       200:
- *         description: 報名取消成功
+ *         description: 報名記錄刪除成功
  *       404:
- *         description: 報名記錄不存在或無權限取消
+ *         description: 報名記錄不存在或無權限刪除
  */
-router.post(
-  "/:id/cancel",
+router.delete(
+  "/:id",
   validateParams(schemas.registration.params),
+  validate(schemas.registration.cancel),
   registrationController.cancelRegistration
-);
-
-/**
- * @swagger
- * /api/registrations/administrator/{administratorId}:
- *   get:
- *     summary: 取得管理員的報名記錄
- *     tags: [報名]
- *     parameters:
- *       - in: path
- *         name: administratorId
- *         required: true
- *         schema:
- *           type: integer
- *         description: 管理員 ID
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           default: 1
- *         description: 頁碼
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 10
- *         description: 每頁筆數
- *     responses:
- *       200:
- *         description: 成功取得管理員報名記錄
- *       404:
- *         description: 管理員不存在
- */
-router.get(
-  "/administrator/:administratorId",
-  validateParams(schemas.registration.params),
-  registrationController.getAdministratorRegistrations
-);
-
-/**
- * @swagger
- * /api/registrations/stats/overall:
- *   get:
- *     summary: 取得整體報名統計
- *     tags: [報名]
- *     responses:
- *       200:
- *         description: 成功取得統計資料
- */
-router.get("/stats/overall", registrationController.getRegistrationStats);
-
-/**
- * @swagger
- * /api/registrations/stats/event/{eventId}:
- *   get:
- *     summary: 取得特定活動的報名統計
- *     tags: [報名]
- *     parameters:
- *       - in: path
- *         name: eventId
- *         required: true
- *         schema:
- *           type: integer
- *         description: 活動 ID
- *     responses:
- *       200:
- *         description: 成功取得統計資料
- *       404:
- *         description: 活動不存在
- */
-router.get(
-  "/stats/event/:eventId",
-  validateParams(schemas.event.params),
-  registrationController.getEventRegistrationStats
-);
-
-/**
- * @swagger
- * /api/registrations/export/event/{eventId}:
- *   get:
- *     summary: 匯出活動報名名單
- *     tags: [報名]
- *     parameters:
- *       - in: path
- *         name: eventId
- *         required: true
- *         schema:
- *           type: integer
- *         description: 活動 ID
- *     responses:
- *       200:
- *         description: 成功匯出名單
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 data:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Registration'
- *       404:
- *         description: 活動不存在
- */
-router.get(
-  "/export/event/:eventId",
-  validateParams(schemas.event.params),
-  registrationController.exportEventRegistrations
 );
 
 module.exports = router;

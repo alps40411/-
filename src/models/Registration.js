@@ -38,16 +38,13 @@ const Registration = sequelize.define(
     },
     registration_time: {
       type: DataTypes.DATE,
+      allowNull: false,
       defaultValue: DataTypes.NOW,
-    },
-    is_active: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: true,
     },
   },
   {
     tableName: "event_registrations",
-    timestamps: true,
+    timestamps: false,
   }
 );
 

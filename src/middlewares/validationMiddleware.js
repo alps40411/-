@@ -57,6 +57,7 @@ const schemas = {
   administrator: {
     create: Joi.object({
       username: Joi.string().min(1).max(50).required(),
+      name: Joi.string().min(1).max(100).required(),
       phone: Joi.string().min(1).max(20).required(),
       birth: Joi.date().required(),
       gender: Joi.string().valid("MALE", "FEMALE", "OTHER").default("MALE"),
@@ -80,16 +81,16 @@ const schemas = {
   announcement: {
     create: Joi.object({
       title: Joi.string().min(1).max(255).required(),
-      description: Joi.string().min(1).required(),
+      content: Joi.string().min(1).required(),
+      administrator_id: Joi.number().integer().positive().required(),
     }),
 
     update: Joi.object({
       title: Joi.string().min(1).max(255),
-      description: Joi.string().min(1),
+      content: Joi.string().min(1),
     }),
 
     query: Joi.object({
-      created_by: Joi.number().integer().positive(),
       page: Joi.number().integer().min(1).default(1),
       limit: Joi.number().integer().min(1).max(100).default(10),
     }),
@@ -102,37 +103,37 @@ const schemas = {
   // 活動相關
   event: {
     create: Joi.object({
-      title: Joi.string().min(1).max(255).required(),
-      description: Joi.string().min(1).required(),
-      start_time: Joi.date().greater("now").required(),
+      title: Joi.string().min(1).max(200).required(),
+      description: Joi.string().min(1).optional(),
+      start_time: Joi.date().required(),
       end_time: Joi.date().greater(Joi.ref("start_time")).required(),
-      registration_deadline: Joi.date().less(Joi.ref("start_time")).required(),
-      place: Joi.string().min(1).max(500).required(),
-      is_capacity_limited: Joi.boolean().default(false),
-      max_participants: Joi.when("is_capacity_limited", {
+      location: Joi.string().min(1).max(200).optional(),
+      is_capacity_limited: Joi.boolean().default(true),
+      max_participants: Joi.alternatives().conditional('is_capacity_limited', {
         is: true,
         then: Joi.number().integer().min(1).required(),
-        otherwise: Joi.number().integer().min(1).optional(),
+        otherwise: Joi.forbidden()
       }),
+      registration_deadline: Joi.date().less(Joi.ref("start_time")).required(),
+      administrator_id: Joi.number().integer().positive().required(),
     }),
 
     update: Joi.object({
-      title: Joi.string().min(1).max(255),
+      title: Joi.string().min(1).max(200),
       description: Joi.string().min(1),
-      start_time: Joi.date().greater("now"),
+      start_time: Joi.date(),
       end_time: Joi.date().greater(Joi.ref("start_time")),
-      registration_deadline: Joi.date().less(Joi.ref("start_time")),
-      place: Joi.string().min(1).max(500),
+      location: Joi.string().min(1).max(200),
       is_capacity_limited: Joi.boolean(),
-      max_participants: Joi.when("is_capacity_limited", {
+      max_participants: Joi.alternatives().conditional('is_capacity_limited', {
         is: true,
-        then: Joi.number().integer().min(1).required(),
-        otherwise: Joi.number().integer().min(1).optional(),
+        then: Joi.number().integer().min(1),
+        otherwise: Joi.forbidden()
       }),
+      registration_deadline: Joi.date().less(Joi.ref("start_time")),
     }),
 
     query: Joi.object({
-      registration_open: Joi.boolean(),
       page: Joi.number().integer().min(1).default(1),
       limit: Joi.number().integer().min(1).max(100).default(10),
     }),
@@ -151,6 +152,10 @@ const schemas = {
       remark: Joi.string().optional(),
     }),
 
+    cancel: Joi.object({
+      administrator_id: Joi.number().integer().positive().required(),
+    }),
+
     query: Joi.object({
       event_id: Joi.number().integer().positive().required(),
       page: Joi.number().integer().min(1).default(1),
@@ -159,7 +164,6 @@ const schemas = {
 
     params: Joi.object({
       id: Joi.number().integer().positive().required(),
-      administratorId: Joi.number().integer().positive().required(),
     }),
   },
 };

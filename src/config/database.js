@@ -4,6 +4,9 @@ require("dotenv").config();
 // 根據環境變數決定使用哪種資料庫
 const dbType = process.env.DB_TYPE || "postgres";
 
+// 檢查是否使用 DATABASE_URL (Neon 通常提供這種格式)
+const isDatabaseUrl = process.env.DATABASE_URL;
+
 // Sequelize CLI 配置
 const config = {
   development: {
@@ -24,6 +27,11 @@ const config = {
     dialectOptions: {
       connectTimeout: 60000,
       statement_timeout: 60000,
+      // 支援 SSL 連接 (Neon 需要)
+      ssl: process.env.DB_SSL === 'true' || process.env.DATABASE_URL ? {
+        require: true,
+        rejectUnauthorized: false
+      } : false,
     },
   },
   production: {
@@ -44,13 +52,38 @@ const config = {
     dialectOptions: {
       connectTimeout: 60000,
       statement_timeout: 60000,
+      // 支援 SSL 連接 (Neon 需要)
+      ssl: process.env.DB_SSL === 'true' || process.env.DATABASE_URL ? {
+        require: true,
+        rejectUnauthorized: false
+      } : false,
     },
   },
 };
 
 // 為應用程式創建 Sequelize 實例
 let sequelize;
-if (process.env.NODE_ENV === "development" || !process.env.NODE_ENV) {
+
+// 如果有 DATABASE_URL，優先使用 (適用於 Neon)
+if (isDatabaseUrl) {
+  sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialect: 'postgres',
+    logging: process.env.NODE_ENV === 'development' ? console.log : false,
+    pool: {
+      max: 5,
+      min: 0,
+      acquire: 60000,
+      idle: 10000,
+    },
+    timezone: "+08:00",
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false
+      }
+    },
+  });
+} else if (process.env.NODE_ENV === "development" || !process.env.NODE_ENV) {
   sequelize = new Sequelize(
     config.development.database,
     config.development.username,

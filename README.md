@@ -16,7 +16,7 @@
 ## 技術架構
 
 - **後端框架**: Node.js + Express.js
-- **資料庫**: MySQL/PostgreSQL (可配置)
+- **資料庫**: PostgreSQL (可配置)
 - **ORM**: Sequelize
 - **驗證**: Joi
 - **安全**: Helmet, CORS, Rate Limiting
@@ -69,20 +69,13 @@ my-event-api/
 
 ## 安裝與設定
 
-### 1. 克隆專案
-
-```bash
-git clone <repository-url>
-cd my-event-api
-```
-
-### 2. 安裝依賴
+### 1. 安裝依賴
 
 ```bash
 npm install
 ```
 
-### 3. 環境設定
+### 2. 環境設定
 
 複製環境變數範例檔案：
 
@@ -96,7 +89,7 @@ cp env.example .env
 # 資料庫設定
 DB_TYPE=mysql
 DB_HOST=localhost
-DB_PORT=3306
+DB_PORT=5432
 DB_NAME=my_event_db
 DB_USER=root
 DB_PASSWORD=password
@@ -106,14 +99,7 @@ PORT=3000
 NODE_ENV=development
 ```
 
-### 4. 資料庫設定
-
-#### MySQL
-
-```bash
-# 建立資料庫
-CREATE DATABASE my_event_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-```
+### 3. 資料庫設定
 
 #### PostgreSQL
 
@@ -122,7 +108,7 @@ CREATE DATABASE my_event_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE DATABASE my_event_db;
 ```
 
-### 5. 執行資料庫遷移
+### 4. 執行資料庫遷移
 
 ```bash
 # 執行遷移
@@ -132,7 +118,7 @@ npm run migrate
 npm run seed
 ```
 
-### 6. 啟動伺服器
+### 5. 啟動伺服器
 
 ```bash
 # 開發模式
