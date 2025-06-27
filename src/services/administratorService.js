@@ -31,6 +31,21 @@ class AdministratorService {
   }
 
   /**
+   * 根據 LINE ID 取得管理員
+   */
+  async getAdministratorByLineId(lineId) {
+    try {
+      const administrator = await Administrator.findOne({
+        where: { line_id: lineId },
+      });
+      return administrator;
+    } catch (error) {
+      console.error("查詢管理員失敗:", error);
+      return null;
+    }
+  }
+
+  /**
    * 獲取所有管理員列表（分頁）
    */
   async getAllAdministrators(page = 1, limit = 10, search = "") {
@@ -46,12 +61,13 @@ class AdministratorService {
         ];
       }
 
-      const { count, rows: administrators } = await Administrator.findAndCountAll({
-        where,
-        limit: parseInt(limit),
-        offset: parseInt(offset),
-        order: [["createdAt", "DESC"]],
-      });
+      const { count, rows: administrators } =
+        await Administrator.findAndCountAll({
+          where,
+          limit: parseInt(limit),
+          offset: parseInt(offset),
+          order: [["createdAt", "DESC"]],
+        });
 
       return {
         success: true,

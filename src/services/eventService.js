@@ -71,7 +71,7 @@ class EventService {
   /**
    * 更新活動
    */
-  async updateEvent(id, updateData) {
+  async updateEvent(id, updateData, administrator_id) {
     try {
       const event = await Event.findOne({
         where: { id, status: { [Op.ne]: "cancelled" } },
@@ -81,6 +81,15 @@ class EventService {
         return {
           success: false,
           message: "找不到指定的活動",
+        };
+      }
+
+      // 檢查權限：只有建立者可以更新
+      if (event.administrator_id !== administrator_id) {
+        return {
+          success: false,
+          message: "沒有權限更新此活動",
+          error: "只有建立者可以更新活動",
         };
       }
 
@@ -112,7 +121,7 @@ class EventService {
   /**
    * 刪除活動
    */
-  async deleteEvent(id) {
+  async deleteEvent(id, administrator_id) {
     try {
       const event = await Event.findOne({
         where: { id, status: { [Op.ne]: "cancelled" } },
@@ -125,10 +134,19 @@ class EventService {
         };
       }
 
+      // 檢查權限：只有建立者可以刪除
+      if (event.administrator_id !== administrator_id) {
+        return {
+          success: false,
+          message: "沒有權限刪除此活動",
+          error: "只有建立者可以刪除活動",
+        };
+      }
+
       await event.destroy();
-      return { 
+      return {
         success: true,
-        message: "活動已永久刪除" 
+        message: "活動已永久刪除",
       };
     } catch (error) {
       return {

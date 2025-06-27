@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const eventController = require("../controllers/eventController");
+const { lineAuthMiddleware } = require("../middlewares/authMiddleware");
 const {
   validate,
   validateQuery,
@@ -107,6 +108,8 @@ router.get(
  *   post:
  *     summary: 建立活動
  *     tags: [活動]
+ *     security:
+ *       - lineAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -118,7 +121,6 @@ router.get(
  *               - start_time
  *               - end_time
  *               - registration_deadline
- *               - administrator_id
  *             properties:
  *               title:
  *                 type: string
@@ -151,16 +153,20 @@ router.get(
  *                 type: integer
  *                 minimum: 1
  *                 description: 最大參與人數（僅在 is_capacity_limited 為 true 時需要）
- *               administrator_id:
- *                 type: integer
- *                 description: 建立活動的管理員 ID
  *     responses:
  *       201:
  *         description: 活動建立成功
  *       400:
  *         description: 請求資料驗證失敗
+ *       401:
+ *         description: 未授權的操作
  */
-router.post("/", validate(schemas.event.create), eventController.createEvent);
+router.post(
+  "/",
+  lineAuthMiddleware,
+  validate(schemas.event.create),
+  eventController.createEvent
+);
 
 /**
  * @swagger

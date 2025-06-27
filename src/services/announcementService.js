@@ -12,7 +12,7 @@ class AnnouncementService {
         return {
           success: false,
           message: "缺少必要的參數",
-          error: "announcementData 和 administrator_id 參數為必填"
+          error: "announcementData 和 administrator_id 參數為必填",
         };
       }
 
@@ -21,14 +21,14 @@ class AnnouncementService {
         return {
           success: false,
           message: "缺少必要欄位",
-          error: "標題和內容為必填欄位"
+          error: "標題和內容為必填欄位",
         };
       }
 
       const announcement = await Announcement.create({
         ...announcementData,
         administrator_id: administrator_id,
-        status: announcementData.status || 'active' // 預設為 active
+        status: announcementData.status || "active", // 預設為 active
       });
 
       // 重新載入包含關聯資料
@@ -45,19 +45,24 @@ class AnnouncementService {
       return {
         success: true,
         data: createdAnnouncement,
-        message: "建立公告成功"
+        message: "建立公告成功",
       };
     } catch (error) {
       return {
         success: false,
         message: "建立公告失敗",
-        error: error.message
+        error: error.message,
       };
     }
   }
 
   // 取得所有有效公告
-  async getAllAnnouncements(page = 1, limit = 10, search = "", status = "active") {
+  async getAllAnnouncements(
+    page = 1,
+    limit = 10,
+    search = "",
+    status = "active"
+  ) {
     try {
       const offset = (page - 1) * limit;
       const where = { status: status };
@@ -69,12 +74,14 @@ class AnnouncementService {
         ];
       }
 
-      const { count, rows: announcements } = await Announcement.findAndCountAll({
-        where,
-        limit: parseInt(limit),
-        offset: parseInt(offset),
-        order: [["createdAt", "DESC"]],
-      });
+      const { count, rows: announcements } = await Announcement.findAndCountAll(
+        {
+          where,
+          limit: parseInt(limit),
+          offset: parseInt(offset),
+          order: [["createdAt", "DESC"]],
+        }
+      );
 
       return {
         success: true,
@@ -99,7 +106,7 @@ class AnnouncementService {
   }
 
   // 更新公告
-  async updateAnnouncement(id, updateData) {
+  async updateAnnouncement(id, updateData, administrator_id) {
     try {
       const announcement = await Announcement.findOne({
         where: { id, status: "active" },
@@ -109,7 +116,16 @@ class AnnouncementService {
         return {
           success: false,
           message: "公告不存在",
-          error: "找不到指定的公告或公告已被刪除"
+          error: "找不到指定的公告或公告已被刪除",
+        };
+      }
+
+      // 檢查權限：只有建立者可以更新
+      if (announcement.administrator_id !== administrator_id) {
+        return {
+          success: false,
+          message: "沒有權限更新此公告",
+          error: "只有建立者可以更新公告",
         };
       }
 
@@ -127,19 +143,19 @@ class AnnouncementService {
       return {
         success: true,
         data: updatedAnnouncement,
-        message: "公告更新成功"
+        message: "公告更新成功",
       };
     } catch (error) {
       return {
         success: false,
         message: "公告更新失敗",
-        error: error.message
+        error: error.message,
       };
     }
   }
 
   // 刪除公告
-  async deleteAnnouncement(id) {
+  async deleteAnnouncement(id, administrator_id) {
     try {
       const announcement = await Announcement.findOne({
         where: { id, status: "active" },
@@ -152,10 +168,19 @@ class AnnouncementService {
         };
       }
 
+      // 檢查權限：只有建立者可以刪除
+      if (announcement.administrator_id !== administrator_id) {
+        return {
+          success: false,
+          message: "沒有權限刪除此公告",
+          error: "只有建立者可以刪除公告",
+        };
+      }
+
       await announcement.destroy();
-      return { 
+      return {
         success: true,
-        message: "公告已永久刪除" 
+        message: "公告已永久刪除",
       };
     } catch (error) {
       return {

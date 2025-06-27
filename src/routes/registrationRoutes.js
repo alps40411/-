@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const registrationController = require("../controllers/registrationController");
+const { lineAuthMiddleware } = require("../middlewares/authMiddleware");
 const {
   validate,
   validateQuery,
@@ -51,6 +52,8 @@ const {
  *   post:
  *     summary: 報名活動
  *     tags: [報名]
+ *     security:
+ *       - lineAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -59,15 +62,11 @@ const {
  *             type: object
  *             required:
  *               - event_id
- *               - administrator_id
  *               - participant_name
  *             properties:
  *               event_id:
  *                 type: integer
  *                 description: 活動 ID
- *               administrator_id:
- *                 type: integer
- *                 description: 管理員 ID
  *               participant_name:
  *                 type: string
  *                 maxLength: 100
@@ -80,13 +79,16 @@ const {
  *         description: 報名成功
  *       400:
  *         description: 請求資料驗證失敗
+ *       401:
+ *         description: 未授權的操作
  *       404:
- *         description: 活動或管理員不存在
+ *         description: 活動不存在
  *       409:
  *         description: 報名已滿或已報名
  */
 router.post(
   "/",
+  lineAuthMiddleware,
   validate(schemas.registration.create),
   registrationController.createRegistration
 );
@@ -134,6 +136,8 @@ router.get(
  *   delete:
  *     summary: 刪除報名記錄
  *     tags: [報名]
+ *     security:
+ *       - lineAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -141,26 +145,17 @@ router.get(
  *         schema:
  *           type: integer
  *         description: 報名 ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - administrator_id
- *             properties:
- *               administrator_id:
- *                 type: integer
- *                 description: 管理員 ID
  *     responses:
  *       200:
  *         description: 報名記錄刪除成功
+ *       401:
+ *         description: 未授權的操作
  *       404:
- *         description: 報名記錄不存在或無權限刪除
+ *         description: 報名記錄不存在
  */
 router.delete(
   "/:id",
+  lineAuthMiddleware,
   validateParams(schemas.registration.params),
   validate(schemas.registration.cancel),
   registrationController.cancelRegistration

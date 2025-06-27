@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -6,7 +6,7 @@ module.exports = {
     // ============================
     // 1. 創建 administrators 表
     // ============================
-    await queryInterface.createTable('administrators', {
+    await queryInterface.createTable("administrators", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -32,9 +32,9 @@ module.exports = {
         allowNull: false,
       },
       gender: {
-        type: Sequelize.ENUM('M', 'F'),
+        type: Sequelize.ENUM("M", "F"),
         allowNull: false,
-        defaultValue: 'M',
+        defaultValue: "M",
       },
       line_id: {
         type: Sequelize.STRING(50),
@@ -44,18 +44,18 @@ module.exports = {
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
     });
 
     // 為 administrators 表建立索引
-    await queryInterface.addIndex('administrators', ['username']);
-    await queryInterface.addIndex('administrators', ['line_id']);
+    await queryInterface.addIndex("administrators", ["username"]);
+    await queryInterface.addIndex("administrators", ["line_id"]);
 
     // ============================
     // 2. 創建 announcements 表
     // ============================
-    await queryInterface.createTable('announcements', {
+    await queryInterface.createTable("announcements", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -71,40 +71,40 @@ module.exports = {
         allowNull: false,
       },
       status: {
-        type: Sequelize.ENUM('active', 'inactive'),
+        type: Sequelize.ENUM("active", "inactive"),
         allowNull: false,
-        defaultValue: 'active',
+        defaultValue: "active",
       },
       administrator_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'administrators',
-          key: 'id',
+          model: "administrators",
+          key: "id",
         },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE',
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
     });
 
     // 為 announcements 表建立索引
-    await queryInterface.addIndex('announcements', ['administrator_id']);
-    await queryInterface.addIndex('announcements', ['status']);
+    await queryInterface.addIndex("announcements", ["administrator_id"]);
+    await queryInterface.addIndex("announcements", ["status"]);
 
     // ============================
     // 3. 創建 events 表
     // ============================
-    await queryInterface.createTable('events', {
+    await queryInterface.createTable("events", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -151,42 +151,42 @@ module.exports = {
         allowNull: false,
       },
       status: {
-        type: Sequelize.ENUM('upcoming', 'ongoing', 'completed', 'cancelled'),
+        type: Sequelize.ENUM("upcoming", "ongoing", "completed", "cancelled"),
         allowNull: false,
-        defaultValue: 'upcoming',
+        defaultValue: "upcoming",
       },
       administrator_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'administrators',
-          key: 'id',
+          model: "administrators",
+          key: "id",
         },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE',
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
     });
 
     // 為 events 表建立索引
-    await queryInterface.addIndex('events', ['administrator_id']);
-    await queryInterface.addIndex('events', ['status']);
-    await queryInterface.addIndex('events', ['start_time']);
-    await queryInterface.addIndex('events', ['registration_deadline']);
+    await queryInterface.addIndex("events", ["administrator_id"]);
+    await queryInterface.addIndex("events", ["status"]);
+    await queryInterface.addIndex("events", ["start_time"]);
+    await queryInterface.addIndex("events", ["registration_deadline"]);
 
     // ============================
     // 4. 創建 event_registrations 表
     // ============================
-    await queryInterface.createTable('event_registrations', {
+    await queryInterface.createTable("event_registrations", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -197,21 +197,21 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'events',
-          key: 'id',
+          model: "events",
+          key: "id",
         },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE',
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
       administrator_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'administrators',
-          key: 'id',
+          model: "administrators",
+          key: "id",
         },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE',
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
       participant_name: {
         type: Sequelize.STRING(100),
@@ -224,30 +224,31 @@ module.exports = {
       registration_time: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
     });
 
     // 為 event_registrations 表建立索引
-    await queryInterface.addIndex('event_registrations', ['event_id']);
-    await queryInterface.addIndex('event_registrations', ['administrator_id']);
-    await queryInterface.addIndex('event_registrations', ['registration_time']);
-    
+    await queryInterface.addIndex("event_registrations", ["event_id"]);
+    await queryInterface.addIndex("event_registrations", ["administrator_id"]);
+    await queryInterface.addIndex("event_registrations", ["registration_time"]);
+
     // 建立複合唯一索引，防止同一管理員重複報名同一活動
-    await queryInterface.addIndex('event_registrations', 
-      ['event_id', 'administrator_id'], 
-      { 
+    await queryInterface.addIndex(
+      "event_registrations",
+      ["event_id", "administrator_id"],
+      {
         unique: true,
-        name: 'unique_event_administrator_registration'
+        name: "unique_event_administrator_registration",
       }
     );
   },
 
   async down(queryInterface, Sequelize) {
     // 按照相反順序刪除表（考慮外鍵約束）
-    await queryInterface.dropTable('event_registrations');
-    await queryInterface.dropTable('events');
-    await queryInterface.dropTable('announcements');
-    await queryInterface.dropTable('administrators');
-  }
-}; 
+    await queryInterface.dropTable("event_registrations");
+    await queryInterface.dropTable("events");
+    await queryInterface.dropTable("announcements");
+    await queryInterface.dropTable("administrators");
+  },
+};

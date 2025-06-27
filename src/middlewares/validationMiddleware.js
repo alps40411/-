@@ -60,16 +60,14 @@ const schemas = {
       name: Joi.string().min(1).max(100).required(),
       phone: Joi.string().min(1).max(20).required(),
       birth: Joi.date().required(),
-      gender: Joi.string().valid("MALE", "FEMALE", "OTHER").default("MALE"),
-      line_id: Joi.string().min(1).max(50).required(),
+      gender: Joi.string().valid("M", "F", "O").default("M"),
     }),
 
     update: Joi.object({
       username: Joi.string().min(1).max(50),
       phone: Joi.string().min(1).max(20),
       birth: Joi.date(),
-      gender: Joi.string().valid("MALE", "FEMALE", "OTHER"),
-      line_id: Joi.string().min(1).max(50),
+      gender: Joi.string().valid("M", "F", "O"),
     }),
 
     params: Joi.object({
@@ -82,7 +80,6 @@ const schemas = {
     create: Joi.object({
       title: Joi.string().min(1).max(255).required(),
       content: Joi.string().min(1).required(),
-      administrator_id: Joi.number().integer().positive().required(),
     }),
 
     update: Joi.object({
@@ -109,13 +106,12 @@ const schemas = {
       end_time: Joi.date().greater(Joi.ref("start_time")).required(),
       location: Joi.string().min(1).max(200).optional(),
       is_capacity_limited: Joi.boolean().default(true),
-      max_participants: Joi.alternatives().conditional('is_capacity_limited', {
+      max_participants: Joi.alternatives().conditional("is_capacity_limited", {
         is: true,
         then: Joi.number().integer().min(1).required(),
-        otherwise: Joi.forbidden()
+        otherwise: Joi.forbidden(),
       }),
       registration_deadline: Joi.date().less(Joi.ref("start_time")).required(),
-      administrator_id: Joi.number().integer().positive().required(),
     }),
 
     update: Joi.object({
@@ -125,10 +121,10 @@ const schemas = {
       end_time: Joi.date().greater(Joi.ref("start_time")),
       location: Joi.string().min(1).max(200),
       is_capacity_limited: Joi.boolean(),
-      max_participants: Joi.alternatives().conditional('is_capacity_limited', {
+      max_participants: Joi.alternatives().conditional("is_capacity_limited", {
         is: true,
         then: Joi.number().integer().min(1),
-        otherwise: Joi.forbidden()
+        otherwise: Joi.forbidden(),
       }),
       registration_deadline: Joi.date().less(Joi.ref("start_time")),
     }),
@@ -147,14 +143,11 @@ const schemas = {
   registration: {
     create: Joi.object({
       event_id: Joi.number().integer().positive().required(),
-      administrator_id: Joi.number().integer().positive().required(),
       participant_name: Joi.string().min(1).max(100).required(),
       remark: Joi.string().optional(),
     }),
 
-    cancel: Joi.object({
-      administrator_id: Joi.number().integer().positive().required(),
-    }),
+    cancel: Joi.object({}),
 
     query: Joi.object({
       event_id: Joi.number().integer().positive().required(),

@@ -4,8 +4,16 @@ class RegistrationController {
   // 建立活動報名
   async createRegistration(req, res, next) {
     try {
+      // 從 middleware 中取得管理員 ID
+      const administratorId = req.administratorId;
+
+      const registrationData = {
+        ...req.body,
+        administrator_id: administratorId,
+      };
+
       const registration = await registrationService.createRegistration(
-        req.body
+        registrationData
       );
 
       res.status(201).json({
@@ -41,10 +49,10 @@ class RegistrationController {
   async cancelRegistration(req, res, next) {
     try {
       const { id } = req.params;
-      const { administrator_id } = req.body;
+      const administratorId = req.administratorId;
       const result = await registrationService.cancelRegistration(
         id,
-        administrator_id
+        administratorId
       );
 
       res.status(200).json({

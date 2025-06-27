@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const administratorController = require("../controllers/administratorController");
+const { lineAuthOptionalMiddleware } = require("../middlewares/authMiddleware");
 const {
   validate,
   validateParams,
@@ -19,7 +20,6 @@ const {
  *         - phone
  *         - birth
  *         - gender
- *         - line_id
  *       properties:
  *         username:
  *           type: string
@@ -39,12 +39,8 @@ const {
  *           description: 生日
  *         gender:
  *           type: string
- *           enum: [MALE, FEMALE, OTHER]
+ *           enum: [M, F, O]
  *           description: 性別
- *         line_id:
- *           type: string
- *           maxLength: 50
- *           description: Line ID
  *     AdministratorResponse:
  *       allOf:
  *         - type: object
@@ -56,6 +52,10 @@ const {
  *               type: string
  *               format: date-time
  *               description: 建立時間
+ *             line_id:
+ *               type: string
+ *               maxLength: 50
+ *               description: Line ID
  *         - $ref: '#/components/schemas/Administrator'
  */
 
@@ -65,6 +65,8 @@ const {
  *   post:
  *     summary: 建立管理員
  *     tags: [管理員]
+ *     security:
+ *       - lineAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -76,9 +78,12 @@ const {
  *         description: 管理員建立成功
  *       400:
  *         description: 請求資料驗證失敗
+ *       401:
+ *         description: 未授權的操作
  */
 router.post(
   "/",
+  lineAuthOptionalMiddleware,
   validate(schemas.administrator.create),
   administratorController.createAdministrator
 );

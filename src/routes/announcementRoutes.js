@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const announcementController = require("../controllers/announcementController");
+const { lineAuthMiddleware } = require("../middlewares/authMiddleware");
 const {
   validate,
   validateQuery,
@@ -81,6 +82,8 @@ router.get(
  *   post:
  *     summary: 建立公告
  *     tags: [公告]
+ *     security:
+ *       - lineAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -90,7 +93,6 @@ router.get(
  *             required:
  *               - title
  *               - content
- *               - administrator_id
  *             properties:
  *               title:
  *                 type: string
@@ -99,17 +101,17 @@ router.get(
  *               content:
  *                 type: string
  *                 description: 公告內容
- *               administrator_id:
- *                 type: integer
- *                 description: 建立者 ID
  *     responses:
  *       201:
  *         description: 公告建立成功
  *       400:
  *         description: 請求資料驗證失敗
+ *       401:
+ *         description: 未授權的操作
  */
 router.post(
   "/",
+  lineAuthMiddleware,
   validate(schemas.announcement.create),
   announcementController.createAnnouncement
 );
@@ -120,6 +122,8 @@ router.post(
  *   put:
  *     summary: 更新公告
  *     tags: [公告]
+ *     security:
+ *       - lineAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -146,13 +150,14 @@ router.post(
  *         description: 公告更新成功
  *       400:
  *         description: 請求資料驗證失敗
- *       403:
- *         description: 沒有權限更新此公告
+ *       401:
+ *         description: 未授權的操作
  *       404:
  *         description: 公告不存在
  */
 router.put(
   "/:id",
+  lineAuthMiddleware,
   validateParams(schemas.announcement.params),
   validate(schemas.announcement.update),
   announcementController.updateAnnouncement
@@ -164,6 +169,8 @@ router.put(
  *   delete:
  *     summary: 刪除公告
  *     tags: [公告]
+ *     security:
+ *       - lineAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -174,13 +181,14 @@ router.put(
  *     responses:
  *       200:
  *         description: 公告刪除成功
- *       403:
- *         description: 沒有權限刪除此公告
+ *       401:
+ *         description: 未授權的操作
  *       404:
  *         description: 公告不存在
  */
 router.delete(
   "/:id",
+  lineAuthMiddleware,
   validateParams(schemas.announcement.params),
   announcementController.deleteAnnouncement
 );

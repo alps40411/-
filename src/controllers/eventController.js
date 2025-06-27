@@ -4,13 +4,14 @@ class EventController {
   // 建立活動
   async createEvent(req, res, next) {
     try {
-      const { administrator_id, ...eventData } = req.body;
-      
+      // 從 middleware 中取得管理員 ID
+      const administratorId = req.administratorId;
+
       const finalEventData = {
-        ...eventData,
-        administrator_id: administrator_id,
+        ...req.body,
+        administrator_id: administratorId,
       };
-      
+
       const event = await eventService.createEvent(finalEventData);
 
       res.status(201).json({
@@ -45,8 +46,12 @@ class EventController {
   async updateEvent(req, res, next) {
     try {
       const { id } = req.params;
-      const { ...updateData } = req.body;
-      const event = await eventService.updateEvent(id, updateData);
+      const administratorId = req.administratorId;
+      const event = await eventService.updateEvent(
+        id,
+        req.body,
+        administratorId
+      );
 
       res.status(200).json({
         success: true,
@@ -62,7 +67,8 @@ class EventController {
   async deleteEvent(req, res, next) {
     try {
       const { id } = req.params;
-      const result = await eventService.deleteEvent(id);
+      const administratorId = req.administratorId;
+      const result = await eventService.deleteEvent(id, administratorId);
 
       res.status(200).json({
         success: true,

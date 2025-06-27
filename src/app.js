@@ -132,6 +132,21 @@ const swaggerDefinition = {
       description: "開發環境",
     },
   ],
+  components: {
+    securitySchemes: {
+      lineAuth: {
+        type: "apiKey",
+        in: "header",
+        name: "X-Line-User-Id",
+        description: "LINE USER ID 用於管理員權限驗證",
+      },
+    },
+  },
+  security: [
+    {
+      lineAuth: [],
+    },
+  ],
 };
 
 const options = {

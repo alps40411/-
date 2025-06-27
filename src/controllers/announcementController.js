@@ -4,10 +4,11 @@ class AnnouncementController {
   // 建立公告
   async createAnnouncement(req, res, next) {
     try {
-      const { administrator_id, ...announcementData } = req.body;
+      // 從 middleware 中取得管理員 ID，而不是從請求體中取得
+      const administratorId = req.administratorId;
       const result = await announcementService.createAnnouncement(
-        announcementData,
-        administrator_id
+        req.body,
+        administratorId
       );
 
       if (!result.success) {
@@ -50,15 +51,19 @@ class AnnouncementController {
   async updateAnnouncement(req, res, next) {
     try {
       const { id } = req.params;
-      const { ...updateData } = req.body;
+      const administratorId = req.administratorId;
       const result = await announcementService.updateAnnouncement(
         id,
-        updateData
+        req.body,
+        administratorId
       );
 
       if (!result.success) {
-        const statusCode = result.message.includes("不存在") ? 404 : 
-                          result.message.includes("沒有權限") ? 403 : 400;
+        const statusCode = result.message.includes("不存在")
+          ? 404
+          : result.message.includes("沒有權限")
+          ? 403
+          : 400;
         return res.status(statusCode).json({
           success: false,
           message: result.message,
@@ -80,8 +85,12 @@ class AnnouncementController {
   async deleteAnnouncement(req, res, next) {
     try {
       const { id } = req.params;
+      const administratorId = req.administratorId;
 
-      let result = await announcementService.deleteAnnouncement(id);
+      let result = await announcementService.deleteAnnouncement(
+        id,
+        administratorId
+      );
 
       res.status(200).json({
         success: true,
