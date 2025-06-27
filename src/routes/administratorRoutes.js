@@ -16,7 +16,6 @@ const {
  *       type: object
  *       required:
  *         - username
- *         - name
  *         - phone
  *         - birth
  *         - gender
@@ -25,10 +24,6 @@ const {
  *           type: string
  *           maxLength: 50
  *           description: 使用者名稱
- *         name:
- *           type: string
- *           maxLength: 100
- *           description: 姓名
  *         phone:
  *           type: string
  *           maxLength: 20

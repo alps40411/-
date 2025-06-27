@@ -17,13 +17,6 @@ const Administrator = sequelize.define(
         len: [1, 50],
       },
     },
-    name: {
-      type: DataTypes.STRING(100),
-      allowNull: false,
-      validate: {
-        len: [1, 100],
-      },
-    },
     phone: {
       type: DataTypes.STRING(20),
       allowNull: false,

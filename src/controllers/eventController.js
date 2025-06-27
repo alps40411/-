@@ -47,16 +47,27 @@ class EventController {
     try {
       const { id } = req.params;
       const administratorId = req.administratorId;
-      const event = await eventService.updateEvent(
+      const result = await eventService.updateEvent(
         id,
         req.body,
         administratorId
       );
 
+      if (!result.success) {
+        // 根據錯誤訊息判斷適當的狀態碼
+        if (result.message.includes("找不到")) {
+          return res.status(404).json(result);
+        } else if (result.message.includes("沒有權限")) {
+          return res.status(403).json(result);
+        } else {
+          return res.status(400).json(result);
+        }
+      }
+
       res.status(200).json({
         success: true,
         message: "活動更新成功",
-        data: event,
+        data: result,
       });
     } catch (error) {
       next(error);
@@ -69,6 +80,17 @@ class EventController {
       const { id } = req.params;
       const administratorId = req.administratorId;
       const result = await eventService.deleteEvent(id, administratorId);
+
+      if (!result.success) {
+        // 根據錯誤訊息判斷適當的狀態碼
+        if (result.message.includes("不存在")) {
+          return res.status(404).json(result);
+        } else if (result.message.includes("沒有權限")) {
+          return res.status(403).json(result);
+        } else {
+          return res.status(400).json(result);
+        }
+      }
 
       res.status(200).json({
         success: true,

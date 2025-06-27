@@ -13,7 +13,6 @@ module.exports = {
     const adminData = [
       {
         username: "admin",
-        name: "系統管理員",
         phone: "0912345678",
         birth: "1990-01-01",
         gender: "M",
@@ -22,7 +21,6 @@ module.exports = {
       },
       {
         username: "moderator1",
-        name: "活動管理員1",
         phone: "0923456789",
         birth: "1991-02-02",
         gender: "F",
@@ -31,7 +29,6 @@ module.exports = {
       },
       {
         username: "moderator2",
-        name: "活動管理員2",
         phone: "0934567890",
         birth: "1992-03-03",
         gender: "M",

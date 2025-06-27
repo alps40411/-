@@ -174,6 +174,8 @@ router.post(
  *   put:
  *     summary: 更新活動
  *     tags: [活動]
+ *     security:
+ *       - lineAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -231,6 +233,8 @@ router.post(
  *         description: 活動更新成功
  *       400:
  *         description: 請求資料驗證失敗
+ *       401:
+ *         description: 未授權的操作
  *       403:
  *         description: 沒有權限更新此活動
  *       404:
@@ -238,6 +242,7 @@ router.post(
  */
 router.put(
   "/:id",
+  lineAuthMiddleware,
   validateParams(schemas.event.params),
   validate(schemas.event.update),
   eventController.updateEvent
@@ -249,6 +254,8 @@ router.put(
  *   delete:
  *     summary: 刪除活動
  *     tags: [活動]
+ *     security:
+ *       - lineAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -259,6 +266,8 @@ router.put(
  *     responses:
  *       200:
  *         description: 活動刪除成功
+ *       401:
+ *         description: 未授權的操作
  *       403:
  *         description: 沒有權限刪除此活動
  *       404:
@@ -266,6 +275,7 @@ router.put(
  */
 router.delete(
   "/:id",
+  lineAuthMiddleware,
   validateParams(schemas.event.params),
   eventController.deleteEvent
 );

@@ -57,7 +57,6 @@ const schemas = {
   administrator: {
     create: Joi.object({
       username: Joi.string().min(1).max(50).required(),
-      name: Joi.string().min(1).max(100).required(),
       phone: Joi.string().min(1).max(20).required(),
       birth: Joi.date().required(),
       gender: Joi.string().valid("M", "F", "O").default("M"),

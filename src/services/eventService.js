@@ -14,7 +14,7 @@ class EventService {
           {
             model: Administrator,
             as: "creator",
-            attributes: ["id", "username", "name"],
+            attributes: ["id", "username"],
           },
         ],
       });
@@ -99,7 +99,7 @@ class EventService {
           {
             model: Administrator,
             as: "creator",
-            attributes: ["id", "username", "name"],
+            attributes: ["id", "username"],
           },
         ],
       });

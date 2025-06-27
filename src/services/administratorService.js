@@ -56,7 +56,6 @@ class AdministratorService {
       if (search) {
         where[Op.or] = [
           { username: { [Op.iLike]: `%${search}%` } },
-          { name: { [Op.iLike]: `%${search}%` } },
           { phone: { [Op.iLike]: `%${search}%` } },
         ];
       }
