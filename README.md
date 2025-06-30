@@ -1,6 +1,6 @@
 # 扶輪社活動管理系統
 
-一個功能完整的活動與公告管理後端 API，支援活動 CRUD、公告 CRUD、活動報名與報名名單查詢，並具備管理員管理功能。
+一個功能完整的活動與公告管理後端 API，支援活動 CRUD、公告 CRUD、活動報名與報名名單查詢，並具備管理員管理功能。所有 API 都需要 LINE 用戶身份驗證。
 
 ## 功能特色
 
@@ -8,23 +8,23 @@
 - 🎉 **活動管理** - 活動建立、更新、刪除與查詢
 - 📝 **報名系統** - 活動報名與報名名單管理
 - 👥 **管理員系統** - 管理員資料管理
-- 🔍 **搜尋功能** - 公告與活動搜尋
-- 📊 **統計功能** - 各種統計數據查詢
-- 📄 **匯出功能** - 報名名單匯出
+- 🔐 **LINE 身份驗證** - 基於 LINE 用戶 ID 的身份驗證機制
+- 📊 **分頁查詢** - 支援分頁的資料查詢
 - 🛡️ **安全防護** - 速率限制、CORS、Helmet 等安全措施
 
 ## 技術架構
 
 - **後端框架**: Node.js + Express.js
-- **資料庫**: PostgreSQL (可配置)
+- **資料庫**: SQLite (預設) / PostgreSQL / MySQL
 - **ORM**: Sequelize
 - **驗證**: Joi
 - **安全**: Helmet, CORS, Rate Limiting
+- **API 文檔**: Swagger
 
 ## 專案結構
 
 ```
-my-event-api/
+/
 ├── src/
 │   ├── config/
 │   │   └── database.js          # 資料庫配置
@@ -50,6 +50,7 @@ my-event-api/
 │   │   ├── eventService.js
 │   │   └── registrationService.js
 │   ├── middlewares/
+│   │   ├── authMiddleware.js
 │   │   ├── errorMiddleware.js
 │   │   └── validationMiddleware.js
 │   ├── utils/
@@ -60,9 +61,14 @@ my-event-api/
 │   └── server.js
 ├── db/
 │   ├── migrations/
+│   │   └── 001_create_database_structure.js
 │   └── seeders/
-├── .env
-├── .sequelizerc
+│       ├── 001_demo_administrators.js
+│       ├── 002_demo_announcements.js
+│       ├── 003_demo_events.js
+│       └── 004_demo_registrations.js
+├── database.sqlite
+├── env.example
 ├── package.json
 └── README.md
 ```
@@ -87,12 +93,25 @@ cp env.example .env
 
 ```env
 # 資料庫設定
-DB_TYPE=mysql
+DB_TYPE=sqlite
+
+# 方法 1: 使用 Neon 提供的 DATABASE_URL (PostgreSQL)
+# DATABASE_URL=postgresql://username:password@ep-xxx-xxx.us-east-1.aws.neon.tech/dbname?sslmode=require
+
+# 方法 2: 分別設定各個參數 (PostgreSQL)
+# DB_HOST=ep-xxx-xxx.us-east-1.aws.neon.tech
+# DB_PORT=5432
+# DB_NAME=your-database-name
+# DB_USER=your-username
+# DB_PASSWORD=your-password
+# DB_SSL=true
+
+# 本地開發資料庫設定
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=my_event_db
-DB_USER=root
-DB_PASSWORD=password
+DB_USER=postgres
+DB_PASSWORD=0000
 
 # 伺服器設定
 PORT=3000
@@ -101,7 +120,18 @@ NODE_ENV=development
 
 ### 3. 資料庫設定
 
+#### SQLite (預設)
+
+無需額外設定，系統會自動建立 `database.sqlite` 檔案。
+
 #### PostgreSQL
+
+```bash
+# 建立資料庫
+CREATE DATABASE my_event_db;
+```
+
+#### MySQL
 
 ```bash
 # 建立資料庫
@@ -128,12 +158,48 @@ npm run dev
 npm start
 ```
 
+## 身份驗證機制
+
+### LINE 用戶身份驗證
+
+所有 API 都需要在請求 header 中提供 LINE 用戶 ID：
+
+```javascript
+headers: {
+  'x-line-user-id': 'your-line-user-id'
+}
+```
+
+### 驗證流程
+
+1. **lineAuthMiddleware**: 嚴格驗證，要求用戶必須是已註冊的管理員
+2. **lineAuthOptionalMiddleware**: 寬鬆驗證，允許未註冊的 LINE 用戶（用於註冊流程）
+
+### 錯誤回應
+
+```json
+{
+  "success": false,
+  "message": "未提供 LINE USER ID"
+}
+```
+
+或
+
+```json
+{
+  "success": false,
+  "message": "無效的管理員權限"
+}
+```
+
 ## API 文檔
 
 ### 基礎資訊
 
 - **Base URL**: `http://localhost:3000`
 - **Content-Type**: `application/json`
+- **認證**: 所有 API 都需要 `x-line-user-id` header
 
 ### 管理員 API
 
@@ -141,18 +207,44 @@ npm start
 
 ```http
 GET /api/administrators?page=1&limit=10
+Headers:
+  x-line-user-id: your-line-user-id
 ```
 
-#### 取得管理員資料
+**回應範例:**
 
-```http
-GET /api/administrators/1
+```json
+{
+  "success": true,
+  "data": {
+    "administrators": [
+      {
+        "id": 1,
+        "username": "admin1",
+        "name": "管理員一",
+        "phone": "0912345678",
+        "birth": "1990-01-01",
+        "gender": "M",
+        "line_id": "line123",
+        "createdAt": "2024-01-01T00:00:00.000Z"
+      }
+    ],
+    "pagination": {
+      "currentPage": 1,
+      "totalPages": 1,
+      "totalItems": 1,
+      "itemsPerPage": 10
+    }
+  }
+}
 ```
 
 #### 建立管理員
 
 ```http
 POST /api/administrators
+Headers:
+  x-line-user-id: your-line-user-id
 Content-Type: application/json
 
 {
@@ -160,21 +252,7 @@ Content-Type: application/json
   "name": "新管理員",
   "phone": "0912345678",
   "birth": "1990-01-01",
-  "gender": "M",
-  "line_id": "line123"
-}
-```
-
-#### 更新管理員
-
-```http
-PUT /api/administrators/1
-Content-Type: application/json
-
-{
-  "name": "更新的管理員姓名",
-  "phone": "0987654321",
-  "gender": "F"
+  "gender": "M"
 }
 ```
 
@@ -182,12 +260,8 @@ Content-Type: application/json
 
 ```http
 DELETE /api/administrators/1
-```
-
-#### 依 Line ID 查詢管理員
-
-```http
-GET /api/administrators/line/line123
+Headers:
+  x-line-user-id: your-line-user-id
 ```
 
 ### 公告 API
@@ -195,37 +269,36 @@ GET /api/administrators/line/line123
 #### 取得公告列表
 
 ```http
-GET /api/announcements?page=1&limit=10&created_by=1
+GET /api/announcements?page=1&limit=10
+Headers:
+  x-line-user-id: your-line-user-id
 ```
 
 #### 建立公告
 
 ```http
 POST /api/announcements
+Headers:
+  x-line-user-id: your-line-user-id
 Content-Type: application/json
 
 {
   "title": "重要公告",
-  "description": "這是一個重要的公告內容",
-  "created_by": 1
+  "content": "這是一個重要的公告內容"
 }
-```
-
-#### 搜尋公告
-
-```http
-GET /api/announcements/search?q=關鍵字&page=1&limit=10
 ```
 
 #### 更新公告
 
 ```http
 PUT /api/announcements/1
+Headers:
+  x-line-user-id: your-line-user-id
 Content-Type: application/json
 
 {
   "title": "更新的公告標題",
-  "description": "更新的公告內容"
+  "content": "更新的公告內容"
 }
 ```
 
@@ -233,6 +306,8 @@ Content-Type: application/json
 
 ```http
 DELETE /api/announcements/1
+Headers:
+  x-line-user-id: your-line-user-id
 ```
 
 ### 活動 API
@@ -241,141 +316,179 @@ DELETE /api/announcements/1
 
 ```http
 GET /api/events?page=1&limit=10
+Headers:
+  x-line-user-id: your-line-user-id
 ```
 
 #### 建立活動
 
 ```http
 POST /api/events
+Headers:
+  x-line-user-id: your-line-user-id
 Content-Type: application/json
 
 {
-  "title": "技術研討會",
-  "description": "深入探討最新技術趨勢",
-  "start_time": "2024-01-15T09:00:00Z",
-  "end_time": "2024-01-15T17:00:00Z",
-  "registration_deadline": "2024-01-10T23:59:59Z",
-  "place": "台北市信義區松仁路100號",
-  "max_participants": 50,
-  "created_by": 1
+  "title": "扶輪社年度聚會",
+  "description": "年度聚會活動",
+  "start_time": "2024-12-25T18:00:00.000Z",
+  "end_time": "2024-12-25T22:00:00.000Z",
+  "registration_deadline": "2024-12-20T23:59:59.000Z",
+  "location": "台北市信義區",
+  "is_capacity_limited": true,
+  "max_participants": 50
 }
 ```
 
-#### 搜尋活動
+#### 更新活動
 
 ```http
-GET /api/events/search?q=技術&page=1&limit=10
+PUT /api/events/1
+Headers:
+  x-line-user-id: your-line-user-id
+Content-Type: application/json
+
+{
+  "title": "更新的活動標題",
+  "description": "更新的活動描述",
+  "start_time": "2024-12-25T18:00:00.000Z",
+  "end_time": "2024-12-25T22:00:00.000Z",
+  "registration_deadline": "2024-12-20T23:59:59.000Z",
+  "location": "台北市信義區",
+  "is_capacity_limited": true,
+  "max_participants": 60
+}
 ```
 
-#### 檢查活動報名狀態
+#### 刪除活動
 
 ```http
-GET /api/events/1/registration-status
+DELETE /api/events/1
+Headers:
+  x-line-user-id: your-line-user-id
 ```
+
+### 報名 API
 
 #### 取得活動報名名單
 
 ```http
-GET /api/events/1/registrations
+GET /api/registrations?event_id=1&page=1&limit=10
+Headers:
+  x-line-user-id: your-line-user-id
 ```
-
-### 報名 API
 
 #### 報名活動
 
 ```http
 POST /api/registrations
+Headers:
+  x-line-user-id: your-line-user-id
 Content-Type: application/json
 
 {
   "event_id": 1,
-  "participant_name": "張小明",
-  "phone": "0912345678",
-  "birth": "1995-05-15",
-  "gender": "M",
-  "line_id": "zhang123"
+  "participant_name": "張三",
+  "remark": "素食者"
 }
-```
-
-#### 取得報名列表
-
-```http
-GET /api/registrations?event_id=1&page=1&limit=10
 ```
 
 #### 取消報名
 
 ```http
 DELETE /api/registrations/1
+Headers:
+  x-line-user-id: your-line-user-id
 ```
 
-#### 匯出報名名單
+## 資料模型
 
-```http
-GET /api/registrations/export/event/1
-```
-
-## 資料庫結構
-
-### 管理員表 (administrators)
+### Administrator (管理員)
 
 - `id`: 主鍵
-- `username`: 使用者名稱 (唯一)
+- `username`: 用戶名
 - `name`: 姓名
 - `phone`: 電話
 - `birth`: 生日
-- `gender`: 性別 (M/F)
-- `line_id`: Line ID
+- `gender`: 性別 (M/F/O)
+- `line_id`: LINE 用戶 ID
+- `is_active`: 是否啟用
+- `createdAt`: 建立時間
+- `updatedAt`: 更新時間
 
-### 公告表 (announcements)
-
-- `id`: 主鍵
-- `title`: 標題
-- `description`: 內容
-- `created_by`: 建立者 ID (外鍵)
-- `created_at`: 建立時間
-- `updated_at`: 更新時間
-
-### 活動表 (events)
+### Announcement (公告)
 
 - `id`: 主鍵
 - `title`: 標題
-- `description`: 內容
+- `content`: 內容
+- `created_by`: 建立者 ID
+- `is_active`: 是否啟用
+- `createdAt`: 建立時間
+- `updatedAt`: 更新時間
+
+### Event (活動)
+
+- `id`: 主鍵
+- `title`: 標題
+- `description`: 描述
 - `start_time`: 開始時間
 - `end_time`: 結束時間
 - `registration_deadline`: 報名截止時間
-- `place`: 地點
+- `location`: 地點
+- `is_capacity_limited`: 是否限制人數
 - `max_participants`: 最大參與人數
-- `created_by`: 建立者 ID (外鍵)
-- `created_at`: 建立時間
-- `updated_at`: 更新時間
+- `administrator_id`: 建立者 ID
+- `status`: 狀態 (upcoming/ongoing/completed/cancelled)
+- `createdAt`: 建立時間
+- `updatedAt`: 更新時間
 
-### 報名表 (event_registrations)
+### Registration (報名)
 
 - `id`: 主鍵
-- `event_id`: 活動 ID (外鍵)
+- `event_id`: 活動 ID
+- `administrator_id`: 管理員 ID
 - `participant_name`: 參與者姓名
-- `phone`: 電話
-- `birth`: 生日
-- `gender`: 性別 (M/F)
-- `line_id`: Line ID
+- `remark`: 備註
 - `registration_time`: 報名時間
-- `created_at`: 建立時間
-- `updated_at`: 更新時間
+- `createdAt`: 建立時間
+- `updatedAt`: 更新時間
+
+## 錯誤處理
+
+### 常見錯誤碼
+
+- `400`: 請求資料驗證失敗
+- `401`: 未授權的操作
+- `403`: 沒有權限
+- `404`: 資源不存在
+- `409`: 衝突（如重複報名）
+- `500`: 伺服器內部錯誤
+
+### 錯誤回應格式
+
+```json
+{
+  "success": false,
+  "message": "錯誤訊息",
+  "errors": [
+    {
+      "field": "fieldName",
+      "message": "欄位錯誤訊息"
+    }
+  ]
+}
+```
 
 ## 開發指令
 
 ```bash
-# 開發模式
+# 啟動開發伺服器
 npm run dev
 
-# 測試 API
-npm run test
+# 測試資料庫連線
+npm run test-db
 
-# 測試伺服器
-npm run test-server
-
-# 資料庫遷移
+# 執行資料庫遷移
 npm run migrate
 
 # 執行種子資料
@@ -388,56 +501,47 @@ npm run migrate:undo
 npm run seed:undo
 ```
 
-## 錯誤處理
-
-API 使用統一的錯誤回應格式：
-
-```json
-{
-  "success": false,
-  "message": "錯誤訊息",
-  "errors": [
-    {
-      "field": "欄位名稱",
-      "message": "欄位錯誤訊息"
-    }
-  ],
-  "timestamp": "2024-01-01T00:00:00.000Z"
-}
-```
-
-## 安全措施
-
-- **速率限制**: 防止暴力攻擊和 DDoS
-- **CORS 設定**: 控制跨域請求
-- **Helmet**: 設定安全標頭
-- **輸入驗證**: 使用 Joi 進行嚴格的輸入驗證
-
 ## 部署
 
-### 生產環境設定
+### 環境變數設定
 
-1. 設定 `NODE_ENV=production`
-2. 設定適當的資料庫連線
-3. 使用 PM2 或類似工具管理程序
-4. 設定反向代理 (Nginx)
+生產環境請設定以下環境變數：
 
-### Docker 部署
+```env
+NODE_ENV=production
+PORT=3000
+DB_TYPE=postgres
+DATABASE_URL=your-production-database-url
+```
 
-```dockerfile
-FROM node:18-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-COPY . .
-EXPOSE 3000
-CMD ["npm", "start"]
+### 資料庫備份
+
+```bash
+# SQLite
+cp database.sqlite backup.sqlite
+
+# PostgreSQL
+pg_dump your_database > backup.sql
+
+# MySQL
+mysqldump your_database > backup.sql
 ```
 
 ## 貢獻
 
-歡迎提交 Issue 和 Pull Request！
+1. Fork 專案
+2. 建立功能分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交變更 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 開啟 Pull Request
 
 ## 授權
 
-MIT License
+本專案採用 MIT 授權條款 - 詳見 [LICENSE](LICENSE) 檔案
+
+## 聯絡資訊
+
+如有任何問題或建議，請透過以下方式聯絡：
+
+- 專案 Issues: [GitHub Issues](https://github.com/your-repo/issues)
+- 電子郵件: your-email@example.com
