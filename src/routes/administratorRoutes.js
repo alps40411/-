@@ -1,7 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const administratorController = require("../controllers/administratorController");
-const { lineAuthOptionalMiddleware } = require("../middlewares/authMiddleware");
+const {
+  lineAuthMiddleware,
+  lineAuthOptionalMiddleware,
+} = require("../middlewares/authMiddleware");
 const {
   validate,
   validateParams,
@@ -89,6 +92,8 @@ router.post(
  *   get:
  *     summary: 取得所有管理員
  *     tags: [管理員]
+ *     security:
+ *       - lineAuth: []
  *     parameters:
  *       - in: query
  *         name: page
@@ -105,8 +110,14 @@ router.post(
  *     responses:
  *       200:
  *         description: 成功取得管理員列表
+ *       401:
+ *         description: 未授權的操作
  */
-router.get("/", administratorController.getAllAdministrators);
+router.get(
+  "/",
+  lineAuthMiddleware,
+  administratorController.getAllAdministrators
+);
 
 /**
  * @swagger
@@ -114,6 +125,8 @@ router.get("/", administratorController.getAllAdministrators);
  *   delete:
  *     summary: 刪除管理員
  *     tags: [管理員]
+ *     security:
+ *       - lineAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -124,11 +137,14 @@ router.get("/", administratorController.getAllAdministrators);
  *     responses:
  *       200:
  *         description: 管理員刪除成功
+ *       401:
+ *         description: 未授權的操作
  *       404:
  *         description: 管理員不存在
  */
 router.delete(
   "/:id",
+  lineAuthMiddleware,
   validateParams(schemas.administrator.params),
   administratorController.deleteAdministrator
 );

@@ -99,6 +99,8 @@ router.post(
  *   get:
  *     summary: 取得活動報名名單
  *     tags: [報名]
+ *     security:
+ *       - lineAuth: []
  *     parameters:
  *       - in: query
  *         name: event_id
@@ -123,9 +125,12 @@ router.post(
  *         description: 成功取得報名名單
  *       400:
  *         description: 請提供活動 ID
+ *       401:
+ *         description: 未授權的操作
  */
 router.get(
   "/",
+  lineAuthMiddleware,
   validateQuery(schemas.registration.query),
   registrationController.getEventRegistrations
 );

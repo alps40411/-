@@ -53,6 +53,8 @@ const {
  *   get:
  *     summary: 取得所有有效公告
  *     tags: [公告]
+ *     security:
+ *       - lineAuth: []
  *     parameters:
  *       - in: query
  *         name: page
@@ -69,9 +71,12 @@ const {
  *     responses:
  *       200:
  *         description: 成功取得公告列表
+ *       401:
+ *         description: 未授權的操作
  */
 router.get(
   "/",
+  lineAuthMiddleware,
   validateQuery(schemas.announcement.query),
   announcementController.getAllAnnouncements
 );

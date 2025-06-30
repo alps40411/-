@@ -79,6 +79,8 @@ const {
  *   get:
  *     summary: 取得所有有效活動
  *     tags: [活動]
+ *     security:
+ *       - lineAuth: []
  *     parameters:
  *       - in: query
  *         name: page
@@ -95,9 +97,12 @@ const {
  *     responses:
  *       200:
  *         description: 成功取得活動列表
+ *       401:
+ *         description: 未授權的操作
  */
 router.get(
   "/",
+  lineAuthMiddleware,
   validateQuery(schemas.event.query),
   eventController.getAllEvents
 );
