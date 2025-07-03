@@ -26,10 +26,7 @@ app.use(helmet());
 // CORS 設定
 app.use(
   cors({
-    origin:
-      process.env.NODE_ENV === "production"
-        ? ["https://yourdomain.com"]
-        : ["http://localhost:3000", "http://localhost:3001"],
+    origin: "*",
     credentials: true,
   })
 );
