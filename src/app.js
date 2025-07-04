@@ -27,6 +27,8 @@ app.use(helmet());
 app.use(
   cors({
     origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
@@ -124,7 +126,7 @@ const swaggerDefinition = {
   },
   servers: [
     {
-      url: "http://localhost:3000",
+      url: process.env.API_URL || "http://localhost:3000",
       description: "開發環境",
     },
   ],

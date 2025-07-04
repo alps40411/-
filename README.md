@@ -191,3 +191,33 @@ COPY . .
 EXPOSE 3000
 CMD ["npm", "start"]
 ```
+
+# 環境設定
+
+## 環境變數
+1. 複製 `.env.example` 到 `.env`：
+```bash
+cp .env.example .env
+```
+
+2. 設定環境變數：
+- 開發環境：
+  ```env
+  NODE_ENV=development
+  API_URL=https://your-ngrok-url.ngrok.io  # 設定 Base URL
+  ```
+
+- 生產環境：
+  ```env
+  NODE_ENV=production
+  API_URL=https://your-domain.com  # 設定為您的正式網域
+  ```
+
+## API 文件
+- 開發環境：http://localhost:3000/api-docs
+- 生產環境：https://your-domain.com/api-docs
+
+## 注意事項
+- 使用 ngrok 進行本地測試時，請將 `API_URL` 更新為 ngrok 提供的 URL
+- 部署到正式環境時，請將 `API_URL` 更新為您的正式網域
+- API 文件會自動使用 `API_URL` 作為基礎 URL

@@ -1,37 +1,35 @@
+require("dotenv").config();
 const app = require("./app");
 const { sequelize } = require("./config/database");
 require("./models"); // 載入模型關聯
 
 const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || "0.0.0.0";
 
 // 資料庫連線測試
-async function testDatabaseConnection() {
+async function testConnection() {
   try {
     await sequelize.authenticate();
-    console.log("✅ 資料庫連線成功");
+    console.log("資料庫連線成功！");
   } catch (error) {
-    console.error("❌ 資料庫連線失敗:", error);
+    console.error("無法連線到資料庫:", error);
     process.exit(1);
   }
 }
 
 // 啟動伺服器
 async function startServer() {
-  try {
-    // 測試資料庫連線
-    await testDatabaseConnection();
-
-    // 啟動 HTTP 伺服器
-    app.listen(PORT, () => {
-      console.log(`🚀 伺服器已啟動`);
-      console.log(`📍 監聽端口: ${PORT}`);
-      console.log(`🌍 環境: ${process.env.NODE_ENV || "development"}`);
-      console.log("swagger: http://localhost:3000/api-docs");
-    });
-  } catch (error) {
-    console.error("❌ 伺服器啟動失敗:", error);
-    process.exit(1);
-  }
+  await testConnection();
+  
+  app.listen(PORT, HOST, () => {
+    console.log(`伺服器運行在 http://${HOST}:${PORT}`);
+    console.log(`Swagger 文檔可在 http://${HOST}:${PORT}/api-docs 查看`);
+    
+    // 如果有設定 API_URL，顯示外部訪問地址
+    if (process.env.API_URL) {
+      console.log(`外部訪問地址: ${process.env.API_URL}`);
+    }
+  });
 }
 
 // 優雅關閉
