@@ -21,7 +21,19 @@ const registrationRoutes = require("./routes/registrationRoutes");
 const app = express();
 
 // 安全中介軟體
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        connectSrc: ["'self'", process.env.API_URL || "http://localhost:3000", "http://join-me.nuera-tec.com"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "https:"],
+      },
+    },
+  })
+);
 
 // CORS 設定
 app.use(
