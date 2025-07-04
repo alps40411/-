@@ -4,20 +4,19 @@ class AdministratorController {
   // 建立管理員
   async createAdministrator(req, res, next) {
     try {
-      // 從 LINE 認證中取得 line_id
-      const lineId = req.administrator?.line_id;
-
-      if (!lineId) {
-        return res.status(400).json({
+      // 從 Authorization Header 獲取 LINE ID
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({
           success: false,
-          message: "無法取得 LINE USER ID",
+          message: "未提供認證 Token",
         });
       }
 
+      const line_id = authHeader.split(" ")[1];
+      
       // 檢查是否已經存在相同 line_id 的管理員
-      const existingAdmin = await administratorService.getAdministratorByLineId(
-        lineId
-      );
+      const existingAdmin = await administratorService.getAdministratorByLineId(line_id);
       if (existingAdmin) {
         return res.status(400).json({
           success: false,
@@ -25,13 +24,13 @@ class AdministratorController {
         });
       }
 
-      // 將 line_id 加入請求資料中
-      const adminData = {
+      // 將 line_id 加入到請求體中
+      const administratorData = {
         ...req.body,
-        line_id: lineId,
+        line_id: line_id
       };
 
-      const result = await administratorService.createAdministrator(adminData);
+      const result = await administratorService.createAdministrator(administratorData);
 
       if (result.success) {
         res.status(201).json({
@@ -43,6 +42,7 @@ class AdministratorController {
         res.status(400).json({
           success: false,
           message: result.message,
+          error: result.error,
         });
       }
     } catch (error) {
@@ -90,6 +90,16 @@ class AdministratorController {
       }
     } catch (error) {
       next(error);
+    }
+  }
+
+  // 管理員登入
+  async login(line_id) {
+    try {
+      const result = await administratorService.login(line_id);
+      return result;
+    } catch (error) {
+      throw error;
     }
   }
 }

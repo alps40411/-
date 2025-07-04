@@ -30,7 +30,7 @@ const Administrator = sequelize.define(
       allowNull: false,
     },
     gender: {
-      type: DataTypes.ENUM("M", "F"),
+      type: DataTypes.ENUM("M", "F", "O"),
       allowNull: false,
       defaultValue: "M",
     },

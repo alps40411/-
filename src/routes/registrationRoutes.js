@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const registrationController = require("../controllers/registrationController");
-const { lineAuthMiddleware } = require("../middlewares/authMiddleware");
+const { authMiddleware } = require("../middlewares/authMiddleware");
 const {
   validate,
   validateQuery,
@@ -12,6 +12,11 @@ const {
 /**
  * @swagger
  * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
  *   schemas:
  *     Registration:
  *       type: object
@@ -53,7 +58,7 @@ const {
  *     summary: 報名活動
  *     tags: [報名]
  *     security:
- *       - lineAuth: []
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -88,7 +93,7 @@ const {
  */
 router.post(
   "/",
-  lineAuthMiddleware,
+  authMiddleware,
   validate(schemas.registration.create),
   registrationController.createRegistration
 );
@@ -100,7 +105,7 @@ router.post(
  *     summary: 取得活動報名名單
  *     tags: [報名]
  *     security:
- *       - lineAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: event_id
@@ -130,7 +135,7 @@ router.post(
  */
 router.get(
   "/",
-  lineAuthMiddleware,
+  authMiddleware,
   validateQuery(schemas.registration.query),
   registrationController.getEventRegistrations
 );
@@ -142,7 +147,7 @@ router.get(
  *     summary: 刪除報名記錄
  *     tags: [報名]
  *     security:
- *       - lineAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -160,7 +165,7 @@ router.get(
  */
 router.delete(
   "/:id",
-  lineAuthMiddleware,
+  authMiddleware,
   validateParams(schemas.registration.params),
   validate(schemas.registration.cancel),
   registrationController.cancelRegistration

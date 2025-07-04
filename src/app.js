@@ -71,7 +71,6 @@ app.get("/api", (req, res) => {
         detail: "GET /api/administrators/:id",
         update: "PUT /api/administrators/:id",
         delete: "DELETE /api/administrators/:id",
-        byLineId: "GET /api/administrators/line/:lineId",
       },
       announcements: {
         list: "GET /api/announcements",
@@ -131,17 +130,17 @@ const swaggerDefinition = {
   ],
   components: {
     securitySchemes: {
-      lineAuth: {
-        type: "apiKey",
-        in: "header",
-        name: "X-Line-User-Id",
-        description: "LINE USER ID 用於管理員權限驗證",
+      bearerAuth: {
+        type: "http",
+        scheme: "bearer",
+        bearerFormat: "JWT",
+        description: "JWT Token 用於管理員權限驗證",
       },
     },
   },
   security: [
     {
-      lineAuth: [],
+      bearerAuth: [],
     },
   ],
 };

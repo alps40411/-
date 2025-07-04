@@ -18,7 +18,7 @@ class AdministratorService {
       if (error.name === "SequelizeUniqueConstraintError") {
         return {
           success: false,
-          message: "用戶名、手機號或Line ID已存在",
+          message: "用戶名或手機號已存在",
           error: error.message,
         };
       }
@@ -27,21 +27,6 @@ class AdministratorService {
         message: "創建管理員失敗",
         error: error.message,
       };
-    }
-  }
-
-  /**
-   * 根據 LINE ID 取得管理員
-   */
-  async getAdministratorByLineId(lineId) {
-    try {
-      const administrator = await Administrator.findOne({
-        where: { line_id: lineId },
-      });
-      return administrator;
-    } catch (error) {
-      console.error("查詢管理員失敗:", error);
-      return null;
     }
   }
 
@@ -60,13 +45,12 @@ class AdministratorService {
         ];
       }
 
-      const { count, rows: administrators } =
-        await Administrator.findAndCountAll({
-          where,
-          limit: parseInt(limit),
-          offset: parseInt(offset),
-          order: [["createdAt", "DESC"]],
-        });
+      const { count, rows: administrators } = await Administrator.findAndCountAll({
+        where,
+        limit: parseInt(limit),
+        offset: parseInt(offset),
+        order: [["createdAt", "DESC"]],
+      });
 
       return {
         success: true,
@@ -114,6 +98,20 @@ class AdministratorService {
         message: "刪除管理員失敗",
         error: error.message,
       };
+    }
+  }
+
+  /**
+   * 根據 LINE ID 取得管理員
+   */
+  async getAdministratorByLineId(lineId) {
+    try {
+      const administrator = await Administrator.findOne({
+        where: { line_id: lineId },
+      });
+      return administrator;
+    } catch (error) {
+      throw error;
     }
   }
 }

@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const eventController = require("../controllers/eventController");
-const { lineAuthMiddleware } = require("../middlewares/authMiddleware");
+const { authMiddleware } = require("../middlewares/authMiddleware");
 const {
   validate,
   validateQuery,
@@ -12,6 +12,11 @@ const {
 /**
  * @swagger
  * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
  *   schemas:
  *     Event:
  *       type: object
@@ -80,7 +85,7 @@ const {
  *     summary: 取得所有有效活動
  *     tags: [活動]
  *     security:
- *       - lineAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: page
@@ -102,7 +107,7 @@ const {
  */
 router.get(
   "/",
-  lineAuthMiddleware,
+  authMiddleware,
   validateQuery(schemas.event.query),
   eventController.getAllEvents
 );
@@ -114,50 +119,13 @@ router.get(
  *     summary: 建立活動
  *     tags: [活動]
  *     security:
- *       - lineAuth: []
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - title
- *               - start_time
- *               - end_time
- *               - registration_deadline
- *             properties:
- *               title:
- *                 type: string
- *                 maxLength: 200
- *                 description: 活動標題
- *               description:
- *                 type: string
- *                 description: 活動描述
- *               start_time:
- *                 type: string
- *                 format: date-time
- *                 description: 活動開始時間
- *               end_time:
- *                 type: string
- *                 format: date-time
- *                 description: 活動結束時間
- *               registration_deadline:
- *                 type: string
- *                 format: date-time
- *                 description: 報名截止時間
- *               location:
- *                 type: string
- *                 maxLength: 200
- *                 description: 活動地點
- *               is_capacity_limited:
- *                 type: boolean
- *                 default: true
- *                 description: 是否限制參與人數
- *               max_participants:
- *                 type: integer
- *                 minimum: 1
- *                 description: 最大參與人數（僅在 is_capacity_limited 為 true 時需要）
+ *             $ref: '#/components/schemas/Event'
  *     responses:
  *       201:
  *         description: 活動建立成功
@@ -168,7 +136,7 @@ router.get(
  */
 router.post(
   "/",
-  lineAuthMiddleware,
+  authMiddleware,
   validate(schemas.event.create),
   eventController.createEvent
 );
@@ -180,7 +148,7 @@ router.post(
  *     summary: 更新活動
  *     tags: [活動]
  *     security:
- *       - lineAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -193,46 +161,7 @@ router.post(
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - title
- *               - start_time
- *               - end_time
- *               - registration_deadline
- *               - is_capacity_limited
- *               - max_participants
- *             properties:
- *               title:
- *                 type: string
- *                 maxLength: 200
- *                 description: 活動標題
- *               description:
- *                 type: string
- *                 description: 活動描述
- *               start_time:
- *                 type: string
- *                 format: date-time
- *                 description: 活動開始時間
- *               end_time:
- *                 type: string
- *                 format: date-time
- *                 description: 活動結束時間
- *               registration_deadline:
- *                 type: string
- *                 format: date-time
- *                 description: 報名截止時間
- *               location:
- *                 type: string
- *                 maxLength: 200
- *                 description: 活動地點
- *               is_capacity_limited:
- *                 type: boolean
- *                 default: true
- *                 description: 是否限制參與人數
- *               max_participants:
- *                 type: integer
- *                 minimum: 1
- *                 description: 最大參與人數（僅在 is_capacity_limited 為 true 時需要）
+ *             $ref: '#/components/schemas/Event'
  *     responses:
  *       200:
  *         description: 活動更新成功
@@ -240,14 +169,12 @@ router.post(
  *         description: 請求資料驗證失敗
  *       401:
  *         description: 未授權的操作
- *       403:
- *         description: 沒有權限更新此活動
  *       404:
  *         description: 活動不存在
  */
 router.put(
   "/:id",
-  lineAuthMiddleware,
+  authMiddleware,
   validateParams(schemas.event.params),
   validate(schemas.event.update),
   eventController.updateEvent
@@ -260,7 +187,7 @@ router.put(
  *     summary: 刪除活動
  *     tags: [活動]
  *     security:
- *       - lineAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -273,14 +200,12 @@ router.put(
  *         description: 活動刪除成功
  *       401:
  *         description: 未授權的操作
- *       403:
- *         description: 沒有權限刪除此活動
  *       404:
  *         description: 活動不存在
  */
 router.delete(
   "/:id",
-  lineAuthMiddleware,
+  authMiddleware,
   validateParams(schemas.event.params),
   eventController.deleteEvent
 );

@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const announcementController = require("../controllers/announcementController");
-const { lineAuthMiddleware } = require("../middlewares/authMiddleware");
+const { authMiddleware } = require("../middlewares/authMiddleware");
 const {
   validate,
   validateQuery,
@@ -12,6 +12,11 @@ const {
 /**
  * @swagger
  * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
  *   schemas:
  *     Announcement:
  *       type: object
@@ -54,7 +59,7 @@ const {
  *     summary: 取得所有有效公告
  *     tags: [公告]
  *     security:
- *       - lineAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: page
@@ -76,7 +81,7 @@ const {
  */
 router.get(
   "/",
-  lineAuthMiddleware,
+  authMiddleware,
   validateQuery(schemas.announcement.query),
   announcementController.getAllAnnouncements
 );
@@ -88,24 +93,13 @@ router.get(
  *     summary: 建立公告
  *     tags: [公告]
  *     security:
- *       - lineAuth: []
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - title
- *               - content
- *             properties:
- *               title:
- *                 type: string
- *                 maxLength: 255
- *                 description: 公告標題
- *               content:
- *                 type: string
- *                 description: 公告內容
+ *             $ref: '#/components/schemas/Announcement'
  *     responses:
  *       201:
  *         description: 公告建立成功
@@ -116,7 +110,7 @@ router.get(
  */
 router.post(
   "/",
-  lineAuthMiddleware,
+  authMiddleware,
   validate(schemas.announcement.create),
   announcementController.createAnnouncement
 );
@@ -128,7 +122,7 @@ router.post(
  *     summary: 更新公告
  *     tags: [公告]
  *     security:
- *       - lineAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -141,15 +135,7 @@ router.post(
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               title:
- *                 type: string
- *                 maxLength: 255
- *                 description: 公告標題
- *               content:
- *                 type: string
- *                 description: 公告內容
+ *             $ref: '#/components/schemas/Announcement'
  *     responses:
  *       200:
  *         description: 公告更新成功
@@ -162,7 +148,7 @@ router.post(
  */
 router.put(
   "/:id",
-  lineAuthMiddleware,
+  authMiddleware,
   validateParams(schemas.announcement.params),
   validate(schemas.announcement.update),
   announcementController.updateAnnouncement
@@ -175,7 +161,7 @@ router.put(
  *     summary: 刪除公告
  *     tags: [公告]
  *     security:
- *       - lineAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -193,7 +179,7 @@ router.put(
  */
 router.delete(
   "/:id",
-  lineAuthMiddleware,
+  authMiddleware,
   validateParams(schemas.announcement.params),
   announcementController.deleteAnnouncement
 );

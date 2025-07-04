@@ -1,10 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const administratorController = require("../controllers/administratorController");
-const {
-  lineAuthMiddleware,
-  lineAuthOptionalMiddleware,
-} = require("../middlewares/authMiddleware");
+const { authMiddleware } = require("../middlewares/authMiddleware");
 const {
   validate,
   validateParams,
@@ -14,6 +11,11 @@ const {
 /**
  * @swagger
  * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
  *   schemas:
  *     Administrator:
  *       type: object
@@ -50,10 +52,6 @@ const {
  *               type: string
  *               format: date-time
  *               description: 建立時間
- *             line_id:
- *               type: string
- *               maxLength: 50
- *               description: Line ID
  *         - $ref: '#/components/schemas/Administrator'
  */
 
@@ -63,8 +61,6 @@ const {
  *   post:
  *     summary: 建立管理員
  *     tags: [管理員]
- *     security:
- *       - lineAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -81,7 +77,6 @@ const {
  */
 router.post(
   "/",
-  lineAuthOptionalMiddleware,
   validate(schemas.administrator.create),
   administratorController.createAdministrator
 );
@@ -93,7 +88,7 @@ router.post(
  *     summary: 取得所有管理員
  *     tags: [管理員]
  *     security:
- *       - lineAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: page
@@ -115,7 +110,7 @@ router.post(
  */
 router.get(
   "/",
-  lineAuthMiddleware,
+  authMiddleware,
   administratorController.getAllAdministrators
 );
 
@@ -126,7 +121,7 @@ router.get(
  *     summary: 刪除管理員
  *     tags: [管理員]
  *     security:
- *       - lineAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -144,7 +139,7 @@ router.get(
  */
 router.delete(
   "/:id",
-  lineAuthMiddleware,
+  authMiddleware,
   validateParams(schemas.administrator.params),
   administratorController.deleteAdministrator
 );
