@@ -25,22 +25,25 @@ class AnnouncementService {
         };
       }
 
+      // 過濾掉不應該由客戶端設定的欄位
+      const {
+        id: _id,
+        is_active,
+        createdAt,
+        updatedAt,
+        creator,
+        created_by,
+        ...cleanData
+      } = announcementData;
+
       const announcement = await Announcement.create({
-        ...announcementData,
+        ...cleanData,
         administrator_id: administrator_id,
-        status: announcementData.status || "active", // 預設為 active
+        status: cleanData.status || "active", // 預設為 active
       });
 
-      // 重新載入包含關聯資料
-      const createdAnnouncement = await announcement.reload({
-        include: [
-          {
-            model: Administrator,
-            as: "creator",
-            attributes: ["id", "username"],
-          },
-        ],
-      });
+      // 重新載入資料
+      const createdAnnouncement = await announcement.reload();
 
       return {
         success: true,
@@ -129,16 +132,20 @@ class AnnouncementService {
         };
       }
 
-      await announcement.update(updateData);
-      const updatedAnnouncement = await announcement.reload({
-        include: [
-          {
-            model: Administrator,
-            as: "creator",
-            attributes: ["id", "username"],
-          },
-        ],
-      });
+      // 過濾掉不應該由客戶端更新的欄位
+      const {
+        id: _id,
+        is_active,
+        createdAt,
+        updatedAt,
+        creator,
+        created_by,
+        administrator_id: _administrator_id,
+        ...cleanUpdateData
+      } = updateData;
+
+      await announcement.update(cleanUpdateData);
+      const updatedAnnouncement = await announcement.reload();
 
       return {
         success: true,

@@ -26,9 +26,6 @@ const {
  *         - end_time
  *         - registration_deadline
  *       properties:
- *         id:
- *           type: integer
- *           description: 活動 ID
  *         title:
  *           type: string
  *           maxLength: 200
@@ -54,28 +51,17 @@ const {
  *           description: 活動地點
  *         is_capacity_limited:
  *           type: boolean
+ *           default: true
  *           description: 是否限制參與人數
  *         max_participants:
  *           type: integer
  *           minimum: 1
- *           description: 最大參與人數
- *         administrator_id:
- *           type: integer
- *           description: 建立活動的管理員 ID
+ *           description: 最大參與人數 (當 is_capacity_limited 為 true 時必填)
  *         status:
  *           type: string
  *           enum: [upcoming, ongoing, completed, cancelled]
+ *           default: upcoming
  *           description: 活動狀態
- *         createdAt:
- *           type: string
- *           format: date-time
- *           description: 建立時間
- *         updatedAt:
- *           type: string
- *           format: date-time
- *           description: 更新時間
- *         creator:
- *           $ref: '#/components/schemas/Administrator'
  */
 
 /**
@@ -125,7 +111,49 @@ router.get(
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Event'
+ *             type: object
+ *             required:
+ *               - title
+ *               - start_time
+ *               - end_time
+ *               - registration_deadline
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 maxLength: 200
+ *                 description: 活動標題
+ *               description:
+ *                 type: string
+ *                 description: 活動描述
+ *               start_time:
+ *                 type: string
+ *                 format: date-time
+ *                 description: 活動開始時間
+ *               end_time:
+ *                 type: string
+ *                 format: date-time
+ *                 description: 活動結束時間
+ *               registration_deadline:
+ *                 type: string
+ *                 format: date-time
+ *                 description: 報名截止時間
+ *               location:
+ *                 type: string
+ *                 maxLength: 200
+ *                 description: 活動地點
+ *               is_capacity_limited:
+ *                 type: boolean
+ *                 default: true
+ *                 description: 是否限制參與人數
+ *               max_participants:
+ *                 type: integer
+ *                 minimum: 1
+ *                 description: 最大參與人數 (當 is_capacity_limited 為 true 時必填)
+ *               status:
+ *                 type: string
+ *                 enum: [upcoming, ongoing, completed, cancelled]
+ *                 default: upcoming
+ *                 description: 活動狀態
  *     responses:
  *       201:
  *         description: 活動建立成功
@@ -161,7 +189,42 @@ router.post(
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Event'
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 maxLength: 200
+ *                 description: 活動標題
+ *               description:
+ *                 type: string
+ *                 description: 活動描述
+ *               start_time:
+ *                 type: string
+ *                 format: date-time
+ *                 description: 活動開始時間
+ *               end_time:
+ *                 type: string
+ *                 format: date-time
+ *                 description: 活動結束時間
+ *               registration_deadline:
+ *                 type: string
+ *                 format: date-time
+ *                 description: 報名截止時間
+ *               location:
+ *                 type: string
+ *                 maxLength: 200
+ *                 description: 活動地點
+ *               is_capacity_limited:
+ *                 type: boolean
+ *                 description: 是否限制參與人數
+ *               max_participants:
+ *                 type: integer
+ *                 minimum: 1
+ *                 description: 最大參與人數 (當 is_capacity_limited 為 true 時必填)
+ *               status:
+ *                 type: string
+ *                 enum: [upcoming, ongoing, completed, cancelled]
+ *                 description: 活動狀態
  *     responses:
  *       200:
  *         description: 活動更新成功

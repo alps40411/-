@@ -14,7 +14,7 @@ const authMiddleware = async (req, res, next) => {
     }
 
     const token = authHeader.split(" ")[1];
-    
+
     // 使用 LINE ID (token) 查找管理員
     const administrator = await AdministratorModel.findOne({
       where: { line_id: token },
@@ -29,6 +29,7 @@ const authMiddleware = async (req, res, next) => {
 
     // 將管理員資訊添加到請求對象中
     req.administrator = administrator;
+    req.administratorId = administrator.id;
     next();
   } catch (error) {
     return res.status(500).json({

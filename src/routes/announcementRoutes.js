@@ -24,9 +24,6 @@ const {
  *         - title
  *         - content
  *       properties:
- *         id:
- *           type: integer
- *           description: 公告 ID
  *         title:
  *           type: string
  *           maxLength: 255
@@ -34,22 +31,11 @@ const {
  *         content:
  *           type: string
  *           description: 公告內容
- *         created_by:
- *           type: integer
- *           description: 建立者 ID
- *         is_active:
- *           type: boolean
- *           description: 是否啟用
- *         createdAt:
+ *         status:
  *           type: string
- *           format: date-time
- *           description: 建立時間
- *         updatedAt:
- *           type: string
- *           format: date-time
- *           description: 更新時間
- *         creator:
- *           $ref: '#/components/schemas/Administrator'
+ *           enum: [active, inactive]
+ *           default: active
+ *           description: 公告狀態
  */
 
 /**

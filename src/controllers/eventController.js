@@ -6,18 +6,20 @@ class EventController {
     try {
       // 從 middleware 中取得管理員 ID
       const administratorId = req.administratorId;
+      const result = await eventService.createEvent(req.body, administratorId);
 
-      const finalEventData = {
-        ...req.body,
-        administrator_id: administratorId,
-      };
-
-      const event = await eventService.createEvent(finalEventData);
+      if (!result.success) {
+        return res.status(400).json({
+          success: false,
+          message: result.message,
+          error: result.error,
+        });
+      }
 
       res.status(201).json({
         success: true,
-        message: "活動建立成功",
-        data: event,
+        message: result.message,
+        data: result.data,
       });
     } catch (error) {
       next(error);

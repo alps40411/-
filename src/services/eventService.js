@@ -6,18 +6,36 @@ class EventService {
   /**
    * 創建新活動
    */
-  async createEvent(eventData) {
+  async createEvent(eventData, administrator_id) {
     try {
-      const event = await Event.create(eventData);
-      const createdEvent = await Event.findByPk(event.id, {
-        include: [
-          {
-            model: Administrator,
-            as: "creator",
-            attributes: ["id", "username"],
-          },
-        ],
+      // 數據驗證
+      if (!eventData || !administrator_id) {
+        return {
+          success: false,
+          message: "缺少必要的參數",
+          error: "eventData 和 administrator_id 參數為必填",
+        };
+      }
+
+      // 過濾掉不應該由客戶端設定的欄位
+      const {
+        id: _id,
+        createdAt,
+        updatedAt,
+        creator,
+        administrator_id: _administrator_id,
+        current_participants,
+        ...cleanData
+      } = eventData;
+
+      const event = await Event.create({
+        ...cleanData,
+        administrator_id: administrator_id,
+        status: cleanData.status || "upcoming", // 預設為 upcoming
       });
+
+      // 重新載入資料
+      const createdEvent = await event.reload();
 
       return {
         success: true,
@@ -93,16 +111,19 @@ class EventService {
         };
       }
 
-      await event.update(updateData);
-      const updatedEvent = await Event.findByPk(id, {
-        include: [
-          {
-            model: Administrator,
-            as: "creator",
-            attributes: ["id", "username"],
-          },
-        ],
-      });
+      // 過濾掉不應該由客戶端更新的欄位
+      const {
+        id: _id,
+        createdAt,
+        updatedAt,
+        creator,
+        administrator_id: _administrator_id,
+        current_participants,
+        ...cleanUpdateData
+      } = updateData;
+
+      await event.update(cleanUpdateData);
+      const updatedEvent = await event.reload();
 
       return {
         success: true,

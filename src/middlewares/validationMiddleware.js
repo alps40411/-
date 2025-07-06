@@ -79,11 +79,13 @@ const schemas = {
     create: Joi.object({
       title: Joi.string().min(1).max(255).required(),
       content: Joi.string().min(1).required(),
+      status: Joi.string().valid("active", "inactive").default("active"),
     }),
 
     update: Joi.object({
       title: Joi.string().min(1).max(255),
       content: Joi.string().min(1),
+      status: Joi.string().valid("active", "inactive"),
     }),
 
     query: Joi.object({
@@ -100,10 +102,10 @@ const schemas = {
   event: {
     create: Joi.object({
       title: Joi.string().min(1).max(200).required(),
-      description: Joi.string().min(1).optional(),
+      description: Joi.string().allow("").optional(),
       start_time: Joi.date().required(),
       end_time: Joi.date().greater(Joi.ref("start_time")).required(),
-      location: Joi.string().min(1).max(200).optional(),
+      location: Joi.string().allow("").max(200).optional(),
       is_capacity_limited: Joi.boolean().default(true),
       max_participants: Joi.alternatives().conditional("is_capacity_limited", {
         is: true,
@@ -111,14 +113,17 @@ const schemas = {
         otherwise: Joi.forbidden(),
       }),
       registration_deadline: Joi.date().less(Joi.ref("start_time")).required(),
+      status: Joi.string()
+        .valid("upcoming", "ongoing", "completed", "cancelled")
+        .default("upcoming"),
     }),
 
     update: Joi.object({
       title: Joi.string().min(1).max(200),
-      description: Joi.string().min(1),
+      description: Joi.string().allow(""),
       start_time: Joi.date(),
       end_time: Joi.date().greater(Joi.ref("start_time")),
-      location: Joi.string().min(1).max(200),
+      location: Joi.string().allow("").max(200),
       is_capacity_limited: Joi.boolean(),
       max_participants: Joi.alternatives().conditional("is_capacity_limited", {
         is: true,
@@ -126,6 +131,12 @@ const schemas = {
         otherwise: Joi.forbidden(),
       }),
       registration_deadline: Joi.date().less(Joi.ref("start_time")),
+      status: Joi.string().valid(
+        "upcoming",
+        "ongoing",
+        "completed",
+        "cancelled"
+      ),
     }),
 
     query: Joi.object({
