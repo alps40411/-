@@ -79,13 +79,11 @@ const schemas = {
     create: Joi.object({
       title: Joi.string().min(1).max(255).required(),
       content: Joi.string().min(1).required(),
-      status: Joi.string().valid("active", "inactive").default("active"),
     }),
 
     update: Joi.object({
       title: Joi.string().min(1).max(255),
       content: Joi.string().min(1),
-      status: Joi.string().valid("active", "inactive"),
     }),
 
     query: Joi.object({
@@ -113,9 +111,6 @@ const schemas = {
         otherwise: Joi.forbidden(),
       }),
       registration_deadline: Joi.date().less(Joi.ref("start_time")).required(),
-      status: Joi.string()
-        .valid("upcoming", "ongoing", "completed", "cancelled")
-        .default("upcoming"),
     }),
 
     update: Joi.object({
@@ -131,12 +126,6 @@ const schemas = {
         otherwise: Joi.forbidden(),
       }),
       registration_deadline: Joi.date().less(Joi.ref("start_time")),
-      status: Joi.string().valid(
-        "upcoming",
-        "ongoing",
-        "completed",
-        "cancelled"
-      ),
     }),
 
     query: Joi.object({

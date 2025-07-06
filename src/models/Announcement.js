@@ -20,11 +20,6 @@ const Announcement = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: false,
     },
-    status: {
-      type: DataTypes.ENUM("active", "inactive"),
-      allowNull: false,
-      defaultValue: "active",
-    },
     administrator_id: {
       type: DataTypes.INTEGER,
       allowNull: false,

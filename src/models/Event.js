@@ -43,7 +43,10 @@ const Event = sequelize.define(
       defaultValue: null,
       validate: {
         isValidMaxParticipants(value) {
-          if (this.is_capacity_limited && (value === null || value === undefined)) {
+          if (
+            this.is_capacity_limited &&
+            (value === null || value === undefined)
+          ) {
             throw new Error("當限制人數時，最大參與人數不能為空");
           }
           if (!this.is_capacity_limited && value !== null) {
@@ -67,11 +70,6 @@ const Event = sequelize.define(
       type: DataTypes.DATE,
       allowNull: false,
     },
-    status: {
-      type: DataTypes.ENUM("upcoming", "ongoing", "completed", "cancelled"),
-      allowNull: false,
-      defaultValue: "upcoming",
-    },
     administrator_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -89,7 +87,10 @@ const Event = sequelize.define(
         // 根據 is_capacity_limited 自動設置 max_participants
         if (!event.is_capacity_limited) {
           event.max_participants = null;
-        } else if (event.is_capacity_limited && event.max_participants === null) {
+        } else if (
+          event.is_capacity_limited &&
+          event.max_participants === null
+        ) {
           // 如果限制人數但沒有設置，使用預設值
           event.max_participants = 50;
         }

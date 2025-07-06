@@ -25,13 +25,13 @@ class EventService {
         creator,
         administrator_id: _administrator_id,
         current_participants,
+        status,
         ...cleanData
       } = eventData;
 
       const event = await Event.create({
         ...cleanData,
         administrator_id: administrator_id,
-        status: cleanData.status || "upcoming", // 預設為 upcoming
       });
 
       // 重新載入資料
@@ -92,7 +92,7 @@ class EventService {
   async updateEvent(id, updateData, administrator_id) {
     try {
       const event = await Event.findOne({
-        where: { id, status: { [Op.ne]: "cancelled" } },
+        where: { id },
       });
 
       if (!event) {
@@ -119,6 +119,7 @@ class EventService {
         creator,
         administrator_id: _administrator_id,
         current_participants,
+        status,
         ...cleanUpdateData
       } = updateData;
 
@@ -145,13 +146,13 @@ class EventService {
   async deleteEvent(id, administrator_id) {
     try {
       const event = await Event.findOne({
-        where: { id, status: { [Op.ne]: "cancelled" } },
+        where: { id },
       });
 
       if (!event) {
         return {
           success: false,
-          message: "活動不存在或已被取消",
+          message: "活動不存在",
         };
       }
 

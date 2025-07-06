@@ -33,13 +33,13 @@ class AnnouncementService {
         updatedAt,
         creator,
         created_by,
+        status,
         ...cleanData
       } = announcementData;
 
       const announcement = await Announcement.create({
         ...cleanData,
         administrator_id: administrator_id,
-        status: cleanData.status || "active", // 預設為 active
       });
 
       // 重新載入資料
@@ -59,16 +59,11 @@ class AnnouncementService {
     }
   }
 
-  // 取得所有有效公告
-  async getAllAnnouncements(
-    page = 1,
-    limit = 10,
-    search = "",
-    status = "active"
-  ) {
+  // 取得所有公告
+  async getAllAnnouncements(page = 1, limit = 10, search = "") {
     try {
       const offset = (page - 1) * limit;
-      const where = { status: status };
+      const where = {};
 
       if (search) {
         where[Op.or] = [
@@ -112,7 +107,7 @@ class AnnouncementService {
   async updateAnnouncement(id, updateData, administrator_id) {
     try {
       const announcement = await Announcement.findOne({
-        where: { id, status: "active" },
+        where: { id },
       });
 
       if (!announcement) {
@@ -141,6 +136,7 @@ class AnnouncementService {
         creator,
         created_by,
         administrator_id: _administrator_id,
+        status,
         ...cleanUpdateData
       } = updateData;
 
@@ -165,7 +161,7 @@ class AnnouncementService {
   async deleteAnnouncement(id, administrator_id) {
     try {
       const announcement = await Announcement.findOne({
-        where: { id, status: "active" },
+        where: { id },
       });
 
       if (!announcement) {

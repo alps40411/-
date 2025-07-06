@@ -31,18 +31,13 @@ const {
  *         content:
  *           type: string
  *           description: 公告內容
- *         status:
- *           type: string
- *           enum: [active, inactive]
- *           default: active
- *           description: 公告狀態
  */
 
 /**
  * @swagger
  * /api/announcements:
  *   get:
- *     summary: 取得所有有效公告
+ *     summary: 取得所有公告
  *     tags: [公告]
  *     security:
  *       - bearerAuth: []

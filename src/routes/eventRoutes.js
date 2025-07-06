@@ -57,18 +57,13 @@ const {
  *           type: integer
  *           minimum: 1
  *           description: 最大參與人數 (當 is_capacity_limited 為 true 時必填)
- *         status:
- *           type: string
- *           enum: [upcoming, ongoing, completed, cancelled]
- *           default: upcoming
- *           description: 活動狀態
  */
 
 /**
  * @swagger
  * /api/events:
  *   get:
- *     summary: 取得所有有效活動
+ *     summary: 取得所有活動
  *     tags: [活動]
  *     security:
  *       - bearerAuth: []
@@ -149,11 +144,6 @@ router.get(
  *                 type: integer
  *                 minimum: 1
  *                 description: 最大參與人數 (當 is_capacity_limited 為 true 時必填)
- *               status:
- *                 type: string
- *                 enum: [upcoming, ongoing, completed, cancelled]
- *                 default: upcoming
- *                 description: 活動狀態
  *     responses:
  *       201:
  *         description: 活動建立成功
@@ -221,10 +211,6 @@ router.post(
  *                 type: integer
  *                 minimum: 1
  *                 description: 最大參與人數 (當 is_capacity_limited 為 true 時必填)
- *               status:
- *                 type: string
- *                 enum: [upcoming, ongoing, completed, cancelled]
- *                 description: 活動狀態
  *     responses:
  *       200:
  *         description: 活動更新成功
