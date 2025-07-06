@@ -10,10 +10,10 @@ class RegistrationService {
     try {
       // 檢查活動是否存在且可報名
       const event = await Event.findByPk(registrationData.event_id);
-      if (!event || event.status === "cancelled") {
+      if (!event) {
         return {
           success: false,
-          message: "活動不存在或已取消",
+          message: "活動不存在",
         };
       }
 
@@ -28,10 +28,10 @@ class RegistrationService {
 
       // 檢查這個活動是否已經有其他管理員處理報名（1對1關係）
       const existingRegistration = await Registration.findOne({
-        where: { 
+        where: {
           event_id: registrationData.event_id,
-          administrator_id: { [Op.ne]: registrationData.administrator_id }
-        }
+          administrator_id: { [Op.ne]: registrationData.administrator_id },
+        },
       });
 
       if (existingRegistration) {
@@ -42,7 +42,10 @@ class RegistrationService {
       }
 
       // 檢查活動是否已滿
-      if (event.is_capacity_limited && event.current_participants >= event.max_participants) {
+      if (
+        event.is_capacity_limited &&
+        event.current_participants >= event.max_participants
+      ) {
         return {
           success: false,
           message: "活動報名已滿",
@@ -75,9 +78,9 @@ class RegistrationService {
   async cancelRegistration(id, administrator_id) {
     try {
       const registration = await Registration.findOne({
-        where: { 
-          id, 
-          administrator_id: administrator_id 
+        where: {
+          id,
+          administrator_id: administrator_id,
         },
       });
 
@@ -116,22 +119,24 @@ class RegistrationService {
   async getEventRegistrations(eventId, page = 1, limit = 10) {
     try {
       const offset = (page - 1) * limit;
-      
-      const { count, rows: registrations } = await Registration.findAndCountAll({
-        where: { 
-          event_id: eventId
-        },
-        include: [
-          {
-            model: Administrator,
-            as: "administrator",
-            attributes: ["id", "username"],
+
+      const { count, rows: registrations } = await Registration.findAndCountAll(
+        {
+          where: {
+            event_id: eventId,
           },
-        ],
-        limit: parseInt(limit),
-        offset: parseInt(offset),
-        order: [["registration_time", "DESC"]],
-      });
+          include: [
+            {
+              model: Administrator,
+              as: "administrator",
+              attributes: ["id", "username"],
+            },
+          ],
+          limit: parseInt(limit),
+          offset: parseInt(offset),
+          order: [["registration_time", "DESC"]],
+        }
+      );
 
       return {
         success: true,
@@ -157,4 +162,3 @@ class RegistrationService {
 }
 
 module.exports = new RegistrationService();
-

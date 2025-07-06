@@ -29,7 +29,6 @@ module.exports = {
         registration_deadline: new Date(
           oneWeekLater.getTime() - 24 * 60 * 60 * 1000
         ), // 1天前
-        status: "upcoming",
         administrator_id: 1,
         createdAt: now,
         updatedAt: now,
@@ -48,7 +47,6 @@ module.exports = {
         registration_deadline: new Date(
           twoWeeksLater.getTime() - 2 * 24 * 60 * 60 * 1000
         ), // 2天前
-        status: "upcoming",
         administrator_id: 2,
         createdAt: now,
         updatedAt: now,
@@ -66,7 +64,6 @@ module.exports = {
         registration_deadline: new Date(
           threeWeeksLater.getTime() - 3 * 24 * 60 * 60 * 1000
         ), // 3天前
-        status: "upcoming",
         administrator_id: 3,
         createdAt: now,
         updatedAt: now,

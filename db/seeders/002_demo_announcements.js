@@ -17,7 +17,6 @@ module.exports = {
         title: "歡迎使用活動管理系統",
         content:
           "這是一個功能完整的活動與公告管理系統，支援活動 CRUD、公告 CRUD、活動報名與報名名單查詢等功能。",
-        status: "active",
         administrator_id: 1,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -26,7 +25,6 @@ module.exports = {
         title: "系統維護通知",
         content:
           "系統將於每週日凌晨 2:00-4:00 進行例行維護，期間可能無法正常使用，敬請見諒。",
-        status: "active",
         administrator_id: 1,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -35,7 +33,6 @@ module.exports = {
         title: "新功能上線",
         content:
           "活動報名功能已正式上線，現在可以為活動設定報名截止時間和最大參與人數。",
-        status: "active",
         administrator_id: 2,
         createdAt: new Date(),
         updatedAt: new Date(),

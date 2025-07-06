@@ -66,6 +66,11 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: false,
       },
+      status: {
+        type: Sequelize.ENUM("active", "inactive"),
+        allowNull: false,
+        defaultValue: "active",
+      },
       administrator_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -90,6 +95,7 @@ module.exports = {
 
     // 為 announcements 表建立索引
     await queryInterface.addIndex("announcements", ["administrator_id"]);
+    await queryInterface.addIndex("announcements", ["status"]);
 
     // ============================
     // 3. 創建 events 表
@@ -140,6 +146,11 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false,
       },
+      status: {
+        type: Sequelize.ENUM("upcoming", "ongoing", "completed", "cancelled"),
+        allowNull: false,
+        defaultValue: "upcoming",
+      },
       administrator_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -164,6 +175,7 @@ module.exports = {
 
     // 為 events 表建立索引
     await queryInterface.addIndex("events", ["administrator_id"]);
+    await queryInterface.addIndex("events", ["status"]);
     await queryInterface.addIndex("events", ["start_time"]);
     await queryInterface.addIndex("events", ["registration_deadline"]);
 
