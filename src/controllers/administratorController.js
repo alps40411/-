@@ -14,9 +14,11 @@ class AdministratorController {
       }
 
       const line_id = authHeader.split(" ")[1];
-      
+
       // 檢查是否已經存在相同 line_id 的管理員
-      const existingAdmin = await administratorService.getAdministratorByLineId(line_id);
+      const existingAdmin = await administratorService.getAdministratorByLineId(
+        line_id
+      );
       if (existingAdmin) {
         return res.status(400).json({
           success: false,
@@ -27,10 +29,12 @@ class AdministratorController {
       // 將 line_id 加入到請求體中
       const administratorData = {
         ...req.body,
-        line_id: line_id
+        line_id: line_id,
       };
 
-      const result = await administratorService.createAdministrator(administratorData);
+      const result = await administratorService.createAdministrator(
+        administratorData
+      );
 
       if (result.success) {
         res.status(201).json({

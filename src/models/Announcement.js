@@ -32,6 +32,7 @@ const Announcement = sequelize.define(
   {
     tableName: "announcements",
     timestamps: true,
+    timezone: "+08:00",
   }
 );
 

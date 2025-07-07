@@ -82,6 +82,7 @@ const Event = sequelize.define(
   {
     tableName: "events",
     timestamps: true,
+    timezone: "+08:00",
     hooks: {
       beforeValidate: (event) => {
         // 根據 is_capacity_limited 自動設置 max_participants

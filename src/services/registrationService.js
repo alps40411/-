@@ -1,6 +1,7 @@
 const { Registration, Event, Administrator } = require("../models");
 const { Op } = require("sequelize");
 const moment = require("moment");
+const { convertTimeFieldsToTaipei } = require("../utils/dateHelper");
 
 class RegistrationService {
   /**
@@ -60,7 +61,7 @@ class RegistrationService {
 
       return {
         success: true,
-        data: registration,
+        data: convertTimeFieldsToTaipei(registration.toJSON()),
         message: "報名成功",
       };
     } catch (error) {
@@ -141,7 +142,9 @@ class RegistrationService {
       return {
         success: true,
         data: {
-          registrations,
+          registrations: convertTimeFieldsToTaipei(
+            registrations.map((registration) => registration.toJSON())
+          ),
           pagination: {
             total: count,
             page: parseInt(page),

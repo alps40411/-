@@ -2,6 +2,7 @@ const { Announcement, Administrator } = require("../models");
 const { AppError } = require("../middlewares/errorMiddleware");
 const { Op } = require("sequelize");
 const moment = require("moment");
+const { convertTimeFieldsToTaipei } = require("../utils/dateHelper");
 
 class AnnouncementService {
   // 建立公告
@@ -47,7 +48,7 @@ class AnnouncementService {
 
       return {
         success: true,
-        data: createdAnnouncement,
+        data: convertTimeFieldsToTaipei(createdAnnouncement.toJSON()),
         message: "建立公告成功",
       };
     } catch (error) {
@@ -84,7 +85,9 @@ class AnnouncementService {
       return {
         success: true,
         data: {
-          announcements,
+          announcements: convertTimeFieldsToTaipei(
+            announcements.map((announcement) => announcement.toJSON())
+          ),
           pagination: {
             total: count,
             page: parseInt(page),
@@ -145,7 +148,7 @@ class AnnouncementService {
 
       return {
         success: true,
-        data: updatedAnnouncement,
+        data: convertTimeFieldsToTaipei(updatedAnnouncement.toJSON()),
         message: "公告更新成功",
       };
     } catch (error) {

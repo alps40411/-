@@ -1,6 +1,7 @@
 const { Administrator } = require("../models");
 const { Op } = require("sequelize");
 const moment = require("moment");
+const { convertTimeFieldsToTaipei } = require("../utils/dateHelper");
 
 class AdministratorService {
   /**
@@ -11,7 +12,7 @@ class AdministratorService {
       const administrator = await Administrator.create(adminData);
       return {
         success: true,
-        data: administrator,
+        data: convertTimeFieldsToTaipei(administrator.toJSON()),
         message: "管理員創建成功",
       };
     } catch (error) {
@@ -45,17 +46,20 @@ class AdministratorService {
         ];
       }
 
-      const { count, rows: administrators } = await Administrator.findAndCountAll({
-        where,
-        limit: parseInt(limit),
-        offset: parseInt(offset),
-        order: [["createdAt", "DESC"]],
-      });
+      const { count, rows: administrators } =
+        await Administrator.findAndCountAll({
+          where,
+          limit: parseInt(limit),
+          offset: parseInt(offset),
+          order: [["createdAt", "DESC"]],
+        });
 
       return {
         success: true,
         data: {
-          administrators,
+          administrators: convertTimeFieldsToTaipei(
+            administrators.map((administrator) => administrator.toJSON())
+          ),
           pagination: {
             total: count,
             page: parseInt(page),

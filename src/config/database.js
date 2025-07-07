@@ -28,10 +28,13 @@ const config = {
       connectTimeout: 60000,
       statement_timeout: 60000,
       // 支援 SSL 連接 (Neon 需要)
-      ssl: process.env.DB_SSL === 'true' || process.env.DATABASE_URL ? {
-        require: true,
-        rejectUnauthorized: false
-      } : false,
+      ssl:
+        process.env.DB_SSL === "true" || process.env.DATABASE_URL
+          ? {
+              require: true,
+              rejectUnauthorized: false,
+            }
+          : false,
     },
   },
   production: {
@@ -53,10 +56,13 @@ const config = {
       connectTimeout: 60000,
       statement_timeout: 60000,
       // 支援 SSL 連接 (Neon 需要)
-      ssl: process.env.DB_SSL === 'true' || process.env.DATABASE_URL ? {
-        require: true,
-        rejectUnauthorized: false
-      } : false,
+      ssl:
+        process.env.DB_SSL === "true" || process.env.DATABASE_URL
+          ? {
+              require: true,
+              rejectUnauthorized: false,
+            }
+          : false,
     },
   },
 };
@@ -67,8 +73,8 @@ let sequelize;
 // 如果有 DATABASE_URL，優先使用 (適用於 Neon)
 if (isDatabaseUrl) {
   sequelize = new Sequelize(process.env.DATABASE_URL, {
-    dialect: 'postgres',
-    logging: process.env.NODE_ENV === 'development' ? console.log : false,
+    dialect: "postgres",
+    logging: process.env.NODE_ENV === "development" ? console.log : false,
     pool: {
       max: 5,
       min: 0,
@@ -79,8 +85,11 @@ if (isDatabaseUrl) {
     dialectOptions: {
       ssl: {
         require: true,
-        rejectUnauthorized: false
-      }
+        rejectUnauthorized: false,
+      },
+      useUTC: false, // 強制使用本地時區
+      dateStrings: true,
+      typeCast: true,
     },
   });
 } else if (process.env.NODE_ENV === "development" || !process.env.NODE_ENV) {
@@ -95,7 +104,12 @@ if (isDatabaseUrl) {
       logging: config.development.logging,
       pool: config.development.pool,
       timezone: config.development.timezone,
-      dialectOptions: config.development.dialectOptions,
+      dialectOptions: {
+        ...config.development.dialectOptions,
+        useUTC: false, // 強制使用本地時區
+        dateStrings: true,
+        typeCast: true,
+      },
     }
   );
 } else {
@@ -110,7 +124,12 @@ if (isDatabaseUrl) {
       logging: config.production.logging,
       pool: config.production.pool,
       timezone: config.production.timezone,
-      dialectOptions: config.production.dialectOptions,
+      dialectOptions: {
+        ...config.production.dialectOptions,
+        useUTC: false, // 強制使用本地時區
+        dateStrings: true,
+        typeCast: true,
+      },
     }
   );
 }

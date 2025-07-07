@@ -1,11 +1,20 @@
 /**
  * 日期輔助工具函數
  */
-const moment = require("moment");
+const moment = require("moment-timezone");
 
 // 格式化日期
 const formatDate = (date, format = "YYYY-MM-DD HH:mm:ss") => {
+  if (!date) return null;
   return moment(date).format(format);
+};
+
+// 將UTC時間轉換為UTC+8時區的ISO字符串
+const toTaipeiISOString = (date) => {
+  if (!date) return null;
+  return moment(date)
+    .tz("Asia/Taipei")
+    .format("YYYY-MM-DDTHH:mm:ss.SSS[+08:00]");
 };
 
 // 檢查日期是否有效
@@ -68,8 +77,58 @@ const getRelativeTime = (date) => {
   return moment(date).fromNow();
 };
 
+// 轉換物件中的時間欄位為台北時區
+const convertTimeFieldsToTaipei = (
+  obj,
+  timeFields = [
+    "createdAt",
+    "updatedAt",
+    "start_time",
+    "end_time",
+    "registration_deadline",
+    "registration_time",
+  ]
+) => {
+  if (!obj) return obj;
+
+  // 如果是陣列，遞迴處理每個元素
+  if (Array.isArray(obj)) {
+    return obj.map((item) => convertTimeFieldsToTaipei(item, timeFields));
+  }
+
+  // 如果不是物件，直接返回
+  if (typeof obj !== "object" || obj === null) {
+    return obj;
+  }
+
+  // 複製物件
+  const result = { ...obj };
+
+  // 轉換時間欄位
+  timeFields.forEach((field) => {
+    if (result[field]) {
+      result[field] = toTaipeiISOString(result[field]);
+    }
+  });
+
+  // 處理巢狀物件
+  Object.keys(result).forEach((key) => {
+    if (
+      result[key] &&
+      typeof result[key] === "object" &&
+      !moment.isMoment(result[key]) &&
+      !(result[key] instanceof Date)
+    ) {
+      result[key] = convertTimeFieldsToTaipei(result[key], timeFields);
+    }
+  });
+
+  return result;
+};
+
 module.exports = {
   formatDate,
+  toTaipeiISOString,
   isValidDate,
   isFutureDate,
   isPastDate,
@@ -78,4 +137,5 @@ module.exports = {
   isValidEventTime,
   isRegistrationOpen,
   getRelativeTime,
+  convertTimeFieldsToTaipei,
 };

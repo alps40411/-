@@ -26,7 +26,11 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        connectSrc: ["'self'", process.env.API_URL || "http://localhost:3000", "http://join-me.nuera-tec.com"],
+        connectSrc: [
+          "'self'",
+          process.env.API_URL || "http://localhost:3000",
+          "http://join-me.nuera-tec.com",
+        ],
         scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
         imgSrc: ["'self'", "data:", "https:"],
