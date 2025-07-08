@@ -167,19 +167,52 @@ npm start
 }
 ```
 
-### 管理員 API
+### 管理員/會員 API
+
+#### 建立管理員或會員
+- **POST** `/api/administrators`
+- **描述**: 建立新的管理員或會員帳號
+- **認證**: 需要在Authorization header中提供Bearer token (LINE ID)
+- **請求範例**:
+```json
+{
+  "username": "新用戶",
+  "phone": "0912345678",
+  "birth": "1990-01-01",
+  "gender": "M",
+  "is_admin": false
+}
+```
+- **回應範例**:
+```json
+{
+  "success": true,
+  "message": "會員創建成功",
+  "data": {
+    "id": 1,
+    "username": "新用戶",
+    "phone": "0912345678",
+    "birth": "1990-01-01",
+    "gender": "M",
+    "line_id": "U1234567890abcdef",
+    "is_admin": false,
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  }
+}
+```
 
 #### 確認 LINE ID 註冊狀態
 - **GET** `/api/administrators/check-registration`
-- **描述**: 確認bearer token中的LINE ID是否已註冊為管理員
+- **描述**: 確認bearer token中的LINE ID是否已註冊為管理員或會員
 - **認證**: 需要在Authorization header中提供Bearer token (LINE ID)
 - **回應範例 (已註冊)**:
 ```json
 {
   "is_registered": true,
   "administrator_id": 1,
-  "username": "管理員名稱",
-  "line_id": "U1234567890abcdef"
+  "username": "用戶名稱",
+  "line_id": "U1234567890abcdef",
+  "is_admin": false
 }
 ```
 - **回應範例 (未註冊)**:

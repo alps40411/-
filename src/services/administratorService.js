@@ -5,15 +5,16 @@ const { convertTimeFieldsToTaipei } = require("../utils/dateHelper");
 
 class AdministratorService {
   /**
-   * 創建新管理員
+   * 創建新管理員或會員
    */
   async createAdministrator(adminData) {
     try {
       const administrator = await Administrator.create(adminData);
+      const userType = administrator.is_admin ? "管理員" : "會員";
       return {
         success: true,
         data: convertTimeFieldsToTaipei(administrator.toJSON()),
-        message: "管理員創建成功",
+        message: `${userType}創建成功`,
       };
     } catch (error) {
       if (error.name === "SequelizeUniqueConstraintError") {
@@ -25,14 +26,14 @@ class AdministratorService {
       }
       return {
         success: false,
-        message: "創建管理員失敗",
+        message: "創建用戶失敗",
         error: error.message,
       };
     }
   }
 
   /**
-   * 獲取所有管理員列表（分頁）
+   * 獲取所有管理員/會員列表（分頁）
    */
   async getAllAdministrators(page = 1, limit = 10, search = "") {
     try {
@@ -67,19 +68,19 @@ class AdministratorService {
             pages: Math.ceil(count / limit),
           },
         },
-        message: "獲取管理員列表成功",
+        message: "獲取用戶列表成功",
       };
     } catch (error) {
       return {
         success: false,
-        message: "獲取管理員列表失敗",
+        message: "獲取用戶列表失敗",
         error: error.message,
       };
     }
   }
 
   /**
-   * 刪除管理員
+   * 刪除管理員/會員
    */
   async deleteAdministrator(id) {
     try {
@@ -87,26 +88,26 @@ class AdministratorService {
       if (!administrator) {
         return {
           success: false,
-          message: "找不到指定的管理員",
+          message: "找不到指定的用戶",
         };
       }
 
       await administrator.destroy({ force: true });
       return {
         success: true,
-        message: "管理員刪除成功",
+        message: "用戶刪除成功",
       };
     } catch (error) {
       return {
         success: false,
-        message: "刪除管理員失敗",
+        message: "刪除用戶失敗",
         error: error.message,
       };
     }
   }
 
   /**
-   * 根據 LINE ID 取得管理員
+   * 根據 LINE ID 取得管理員/會員
    */
   async getAdministratorByLineId(lineId) {
     try {

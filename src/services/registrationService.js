@@ -27,18 +27,19 @@ class RegistrationService {
         };
       }
 
-      // 檢查這個管理員是否已經報名過此活動
+      // 檢查這個管理員是否已經為同一個參與者報名過此活動
       const existingRegistration = await Registration.findOne({
         where: {
           event_id: registrationData.event_id,
           administrator_id: registrationData.administrator_id,
+          participant_name: registrationData.participant_name,
         },
       });
 
       if (existingRegistration) {
         return {
           success: false,
-          message: "您已經報名過此活動",
+          message: "您已經為此參與者報名過此活動",
         };
       }
 

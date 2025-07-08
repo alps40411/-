@@ -1,7 +1,7 @@
 const administratorService = require("../services/administratorService");
 
 class AdministratorController {
-  // 建立管理員
+  // 建立管理員或會員
   async createAdministrator(req, res, next) {
     try {
       // 從 Authorization Header 獲取 LINE ID
@@ -15,21 +15,22 @@ class AdministratorController {
 
       const line_id = authHeader.split(" ")[1];
 
-      // 檢查是否已經存在相同 line_id 的管理員
+      // 檢查是否已經存在相同 line_id 的用戶
       const existingAdmin = await administratorService.getAdministratorByLineId(
         line_id
       );
       if (existingAdmin) {
         return res.status(400).json({
           success: false,
-          message: "此 LINE 帳號已經註冊為管理員",
+          message: "此 LINE 帳號已經註冊",
         });
       }
 
-      // 將 line_id 加入到請求體中
+      // 將 line_id 加入到請求體中，並設定 is_admin 預設值
       const administratorData = {
         ...req.body,
         line_id: line_id,
+        is_admin: req.body.is_admin || false, // 預設為會員
       };
 
       const result = await administratorService.createAdministrator(
@@ -54,7 +55,7 @@ class AdministratorController {
     }
   }
 
-  // 取得所有管理員
+  // 取得所有管理員/會員
   async getAllAdministrators(req, res, next) {
     try {
       const { page = 1, limit = 10 } = req.query;
@@ -73,7 +74,7 @@ class AdministratorController {
     }
   }
 
-  // 刪除管理員
+  // 刪除管理員/會員
   async deleteAdministrator(req, res, next) {
     try {
       const { id } = req.params;
@@ -97,7 +98,7 @@ class AdministratorController {
     }
   }
 
-  // 管理員登入
+  // 用戶登入
   async login(line_id) {
     try {
       const result = await administratorService.login(line_id);
@@ -121,7 +122,7 @@ class AdministratorController {
 
       const line_id = authHeader.split(" ")[1];
 
-      // 檢查是否已經存在相同 line_id 的管理員
+      // 檢查是否已經存在相同 line_id 的用戶
       const existingAdmin = await administratorService.getAdministratorByLineId(
         line_id
       );
@@ -132,6 +133,7 @@ class AdministratorController {
           administrator_id: existingAdmin.id,
           username: existingAdmin.username,
           line_id: existingAdmin.line_id,
+          is_admin: existingAdmin.is_admin,
         });
       } else {
         res.status(200).json({

@@ -53,13 +53,14 @@ const validateParams = (schema) => {
 
 // 驗證 Schema 定義
 const schemas = {
-  // 管理員相關
+  // 管理員/會員相關
   administrator: {
     create: Joi.object({
       username: Joi.string().min(1).max(50).required(),
       phone: Joi.string().min(1).max(20).required(),
       birth: Joi.date().required(),
       gender: Joi.string().valid("M", "F", "O").default("M"),
+      is_admin: Joi.boolean().default(false),
     }),
 
     update: Joi.object({

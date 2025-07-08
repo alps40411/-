@@ -17,6 +17,7 @@ module.exports = {
         birth: "1990-01-01",
         gender: "M",
         line_id: "admin_line_id",
+        is_admin: true,
         createdAt: new Date(),
       },
       {
@@ -25,6 +26,7 @@ module.exports = {
         birth: "1991-02-02",
         gender: "F",
         line_id: "moderator1_line_id",
+        is_admin: true,
         createdAt: new Date(),
       },
       {
@@ -33,6 +35,7 @@ module.exports = {
         birth: "1992-03-03",
         gender: "M",
         line_id: "moderator2_line_id",
+        is_admin: true,
         createdAt: new Date(),
       },
     ];

@@ -42,6 +42,11 @@ const Administrator = sequelize.define(
         len: [1, 50],
       },
     },
+    is_admin: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,

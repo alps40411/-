@@ -134,7 +134,7 @@ const swaggerDefinition = {
   info: {
     title: "扶輪社活動管理 API",
     version: "1.0.0",
-    description: "活動與公告管理後端 API 文檔",
+    description: "活動與公告管理後端 API 文檔，支援管理員和會員功能，以及多參與者報名系統",
     contact: {
       name: "API 支援",
       email: "support@example.com",
@@ -152,7 +152,7 @@ const swaggerDefinition = {
         type: "http",
         scheme: "bearer",
         bearerFormat: "JWT",
-        description: "JWT Token 用於管理員權限驗證",
+        description: "Bearer Token (LINE ID) 用於用戶權限驗證",
       },
     },
   },
