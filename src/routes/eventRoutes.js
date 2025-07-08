@@ -259,4 +259,34 @@ router.delete(
   eventController.deleteEvent
 );
 
+/**
+ * @swagger
+ * /api/events/{id}/registration-info:
+ *   get:
+ *     summary: 取得活動報名資訊
+ *     tags: [活動]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 活動 ID
+ *     responses:
+ *       200:
+ *         description: 成功取得活動報名資訊
+ *       401:
+ *         description: 未授權的操作
+ *       404:
+ *         description: 活動不存在
+ */
+router.get(
+  "/:id/registration-info",
+  authMiddleware,
+  validateParams(schemas.event.params),
+  eventController.getEventRegistrationInfo
+);
+
 module.exports = router;

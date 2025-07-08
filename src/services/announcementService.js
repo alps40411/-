@@ -196,6 +196,32 @@ class AnnouncementService {
       };
     }
   }
+
+  // 取得單一公告
+  async getAnnouncement(id) {
+    try {
+      const announcement = await Announcement.findByPk(id);
+
+      if (!announcement) {
+        return {
+          success: false,
+          message: "公告不存在",
+        };
+      }
+
+      return {
+        success: true,
+        data: convertTimeFieldsToTaipei(announcement.toJSON()),
+        message: "獲取公告成功",
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: "獲取公告失敗",
+        error: error.message,
+      };
+    }
+  }
 }
 
 module.exports = new AnnouncementService();

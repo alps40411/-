@@ -106,6 +106,43 @@ class AdministratorController {
       throw error;
     }
   }
+
+  // 確認 LINE ID 是否已註冊
+  async checkLineIdRegistration(req, res, next) {
+    try {
+      // 從 Authorization Header 獲取 LINE ID
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({
+          success: false,
+          message: "未提供認證 Token",
+        });
+      }
+
+      const line_id = authHeader.split(" ")[1];
+
+      // 檢查是否已經存在相同 line_id 的管理員
+      const existingAdmin = await administratorService.getAdministratorByLineId(
+        line_id
+      );
+
+      if (existingAdmin) {
+        res.status(200).json({
+          is_registered: true,
+          administrator_id: existingAdmin.id,
+          username: existingAdmin.username,
+          line_id: existingAdmin.line_id,
+        });
+      } else {
+        res.status(200).json({
+          is_registered: false,
+          line_id: line_id,
+        });
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = new AdministratorController();

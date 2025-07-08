@@ -144,4 +144,47 @@ router.delete(
   administratorController.deleteAdministrator
 );
 
+/**
+ * @swagger
+ * /api/administrators/check-registration:
+ *   get:
+ *     summary: 確認 LINE ID 是否已註冊
+ *     tags: [管理員]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: 成功確認 LINE ID 註冊狀態
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     is_registered:
+ *                       type: boolean
+ *                       description: 是否已註冊
+ *                     administrator_id:
+ *                       type: integer
+ *                       description: 管理員 ID (僅在已註冊時提供)
+ *                     username:
+ *                       type: string
+ *                       description: 使用者名稱 (僅在已註冊時提供)
+ *                     line_id:
+ *                       type: string
+ *                       description: LINE ID
+ *       401:
+ *         description: 未提供認證 Token
+ */
+router.get(
+  "/check-registration",
+  administratorController.checkLineIdRegistration
+);
+
 module.exports = router;

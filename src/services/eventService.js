@@ -181,6 +181,57 @@ class EventService {
       };
     }
   }
+
+  /**
+   * 取得單一活動報名資訊
+   */
+  async getEventRegistrationInfo(eventId) {
+    try {
+      const event = await Event.findByPk(eventId);
+
+      if (!event) {
+        return {
+          success: false,
+          message: "活動不存在",
+        };
+      }
+
+      // 計算實際報名統計
+      const registrationCount = await Registration.count({
+        where: { event_id: eventId },
+      });
+
+      // 同步 current_participants 與實際報名數
+      if (event.current_participants !== registrationCount) {
+        await event.update({ current_participants: registrationCount });
+      }
+
+      const eventData = convertTimeFieldsToTaipei(event.toJSON());
+      
+      return {
+        success: true,
+        data: {
+          event_id: eventData.id,
+          event_title: eventData.title,
+          max_participants: eventData.max_participants,
+          current_participants: registrationCount, // 使用實際計算的數值
+          is_capacity_limited: eventData.is_capacity_limited,
+          registration_deadline: eventData.registration_deadline,
+          is_full: eventData.is_capacity_limited && registrationCount >= eventData.max_participants,
+          available_slots: eventData.is_capacity_limited 
+            ? Math.max(0, eventData.max_participants - registrationCount)
+            : null,
+        },
+        message: "獲取活動報名資訊成功",
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: "獲取活動報名資訊失敗",
+        error: error.message,
+      };
+    }
+  }
 }
 
 module.exports = new EventService();

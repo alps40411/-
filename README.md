@@ -120,6 +120,76 @@ npm start
 - **Base URL**: `http://localhost:3000`
 - **Content-Type**: `application/json`
 
+### 活動報名 API
+
+#### 建立活動報名
+- **POST** `/api/registrations`
+- **描述**: 允許多個管理員報名同一活動
+- **回應格式**: 直接回傳服務層的結果，包含成功/失敗狀態和訊息
+
+#### 取得活動報名資訊
+- **GET** `/api/events/{id}/registration-info`
+- **描述**: 取得單一活動的報名資訊，包含是否額滿、剩餘名額等
+- **回應範例**:
+```json
+{
+  "success": true,
+  "data": {
+    "event_id": 1,
+    "event_title": "扶輪社年度大會",
+    "max_participants": 100,
+    "current_participants": 85,
+    "is_capacity_limited": true,
+    "registration_deadline": "2024-12-31T23:59:59.000Z",
+    "is_full": false,
+    "available_slots": 15
+  }
+}
+```
+
+### 公告 API
+
+#### 取得單一公告
+- **GET** `/api/announcements/{id}`
+- **描述**: 取得指定ID的公告詳細資訊
+- **回應範例**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "title": "重要公告",
+    "content": "公告內容",
+    "administrator_id": 1,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  }
+}
+```
+
+### 管理員 API
+
+#### 確認 LINE ID 註冊狀態
+- **GET** `/api/administrators/check-registration`
+- **描述**: 確認bearer token中的LINE ID是否已註冊為管理員
+- **認證**: 需要在Authorization header中提供Bearer token (LINE ID)
+- **回應範例 (已註冊)**:
+```json
+{
+  "is_registered": true,
+  "administrator_id": 1,
+  "username": "管理員名稱",
+  "line_id": "U1234567890abcdef"
+}
+```
+- **回應範例 (未註冊)**:
+```json
+{
+  "is_registered": false,
+  "line_id": "U1234567890abcdef"
+}
+```
+
 
 ## 開發指令
 
@@ -191,33 +261,3 @@ COPY . .
 EXPOSE 3000
 CMD ["npm", "start"]
 ```
-
-# 環境設定
-
-## 環境變數
-1. 複製 `.env.example` 到 `.env`：
-```bash
-cp .env.example .env
-```
-
-2. 設定環境變數：
-- 開發環境：
-  ```env
-  NODE_ENV=development
-  API_URL=https://your-ngrok-url.ngrok.io  # 設定 Base URL
-  ```
-
-- 生產環境：
-  ```env
-  NODE_ENV=production
-  API_URL=https://your-domain.com  # 設定為您的正式網域
-  ```
-
-## API 文件
-- 開發環境：http://localhost:3000/api-docs
-- 生產環境：https://your-domain.com/api-docs
-
-## 注意事項
-- 使用 ngrok 進行本地測試時，請將 `API_URL` 更新為 ngrok 提供的 URL
-- 部署到正式環境時，請將 `API_URL` 更新為您的正式網域
-- API 文件會自動使用 `API_URL` 作為基礎 URL

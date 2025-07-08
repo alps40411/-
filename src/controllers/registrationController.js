@@ -12,15 +12,12 @@ class RegistrationController {
         administrator_id: administratorId,
       };
 
-      const registration = await registrationService.createRegistration(
+      const result = await registrationService.createRegistration(
         registrationData
       );
 
-      res.status(201).json({
-        success: true,
-        message: "活動報名成功",
-        data: registration,
-      });
+      // 只回傳data中的資訊
+      res.status(201).json(result);
     } catch (error) {
       next(error);
     }

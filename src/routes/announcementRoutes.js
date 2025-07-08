@@ -69,6 +69,36 @@ router.get(
 
 /**
  * @swagger
+ * /api/announcements/{id}:
+ *   get:
+ *     summary: 取得單一公告
+ *     tags: [公告]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 公告 ID
+ *     responses:
+ *       200:
+ *         description: 成功取得公告
+ *       401:
+ *         description: 未授權的操作
+ *       404:
+ *         description: 公告不存在
+ */
+router.get(
+  "/:id",
+  authMiddleware,
+  validateParams(schemas.announcement.params),
+  announcementController.getAnnouncement
+);
+
+/**
+ * @swagger
  * /api/announcements:
  *   post:
  *     summary: 建立公告

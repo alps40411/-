@@ -100,6 +100,25 @@ class AnnouncementController {
       next(error);
     }
   }
+
+  // 取得單一公告
+  async getAnnouncement(req, res, next) {
+    try {
+      const { id } = req.params;
+      const result = await announcementService.getAnnouncement(id);
+
+      if (!result.success) {
+        return res.status(404).json(result);
+      }
+
+      res.status(200).json({
+        success: true,
+        data: result.data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = new AnnouncementController();
