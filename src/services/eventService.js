@@ -213,6 +213,9 @@ class EventService {
         data: {
           event_id: eventData.id,
           event_title: eventData.title,
+          location: eventData.location,
+          start_time: eventData.start_time,
+          end_time: eventData.end_time,
           max_participants: eventData.max_participants,
           current_participants: registrationCount, // 使用實際計算的數值
           is_capacity_limited: eventData.is_capacity_limited,

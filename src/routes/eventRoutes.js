@@ -277,6 +277,55 @@ router.delete(
  *     responses:
  *       200:
  *         description: 成功取得活動報名資訊
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     event_id:
+ *                       type: integer
+ *                       description: 活動 ID
+ *                     event_title:
+ *                       type: string
+ *                       description: 活動標題
+ *                     location:
+ *                       type: string
+ *                       description: 活動地點
+ *                     start_time:
+ *                       type: string
+ *                       format: date-time
+ *                       description: 活動開始時間
+ *                     end_time:
+ *                       type: string
+ *                       format: date-time
+ *                       description: 活動結束時間
+ *                     max_participants:
+ *                       type: integer
+ *                       description: 最大參與人數
+ *                     current_participants:
+ *                       type: integer
+ *                       description: 目前報名人數
+ *                     is_capacity_limited:
+ *                       type: boolean
+ *                       description: 是否限制人數
+ *                     registration_deadline:
+ *                       type: string
+ *                       format: date-time
+ *                       description: 報名截止時間
+ *                     is_full:
+ *                       type: boolean
+ *                       description: 是否已滿
+ *                     available_slots:
+ *                       type: integer
+ *                       nullable: true
+ *                       description: 剩餘名額
+ *                 message:
+ *                   type: string
  *       401:
  *         description: 未授權的操作
  *       404:
