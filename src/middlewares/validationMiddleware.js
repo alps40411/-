@@ -61,6 +61,7 @@ const schemas = {
       birth: Joi.date().required(),
       gender: Joi.string().valid("M", "F", "O").default("M"),
       is_admin: Joi.boolean().default(false),
+      line_avatar_url: Joi.string().uri().max(500).allow(null, "").optional(),
     }),
 
     update: Joi.object({
@@ -68,6 +69,7 @@ const schemas = {
       phone: Joi.string().min(1).max(20),
       birth: Joi.date(),
       gender: Joi.string().valid("M", "F", "O"),
+      line_avatar_url: Joi.string().uri().max(500).allow(null, "").optional(),
     }),
 
     params: Joi.object({

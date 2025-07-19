@@ -45,6 +45,11 @@ const {
  *           type: boolean
  *           default: false
  *           description: 是否為管理員
+ *         line_avatar_url:
+ *           type: string
+ *           maxLength: 500
+ *           description: LINE 大頭照連結
+ *           example: "https://profile.line-scdn.net/..."
  *     AdministratorResponse:
  *       allOf:
  *         - type: object
@@ -58,6 +63,9 @@ const {
  *             is_admin:
  *               type: boolean
  *               description: 是否為管理員
+ *             line_avatar_url:
+ *               type: string
+ *               description: LINE 大頭照連結
  *             createdAt:
  *               type: string
  *               format: date-time
@@ -81,6 +89,13 @@ const {
  *         is_admin:
  *           type: boolean
  *           description: 是否為管理員 (僅在已註冊時提供)
+ *         line_avatar_url:
+ *           type: string
+ *           description: LINE 大頭照連結 (僅在已註冊時提供)
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           description: 註冊時間 (僅在已註冊時提供)
  */
 
 /**
@@ -103,6 +118,7 @@ const {
  *             birth: "1990-01-01"
  *             gender: "M"
  *             is_admin: false
+ *             line_avatar_url: "https://profile.line-scdn.net/0hABC123def"
  *     responses:
  *       201:
  *         description: 用戶建立成功
@@ -128,6 +144,7 @@ const {
  *               gender: "M"
  *               line_id: "U1234567890abcdef"
  *               is_admin: false
+ *               line_avatar_url: "https://profile.line-scdn.net/0hABC123def"
  *               createdAt: "2024-01-01T00:00:00.000Z"
  *       400:
  *         description: 請求資料驗證失敗或用戶已存在
@@ -194,11 +211,7 @@ router.post(
  *       401:
  *         description: 未授權的操作
  */
-router.get(
-  "/",
-  authMiddleware,
-  administratorController.getAllAdministrators
-);
+router.get("/", authMiddleware, administratorController.getAllAdministrators);
 
 /**
  * @swagger
@@ -254,6 +267,8 @@ router.delete(
  *                 username: "管理員"
  *                 line_id: "U1234567890abcdef"
  *                 is_admin: true
+ *                 line_avatar_url: "https://profile.line-scdn.net/0hABC123def"
+ *                 createdAt: "2024-01-01T12:00:00.000Z"
  *             registered_member:
  *               summary: 已註冊的會員
  *               value:
@@ -262,6 +277,8 @@ router.delete(
  *                 username: "會員"
  *                 line_id: "U0987654321fedcba"
  *                 is_admin: false
+ *                 line_avatar_url: "https://profile.line-scdn.net/0hXYZ456ghi"
+ *                 createdAt: "2024-01-02T10:30:00.000Z"
  *             not_registered:
  *               summary: 未註冊
  *               value:

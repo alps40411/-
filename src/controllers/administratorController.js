@@ -31,6 +31,8 @@ class AdministratorController {
         ...req.body,
         line_id: line_id,
         is_admin: req.body.is_admin || false, // 預設為會員
+        // line_avatar_url 可以從請求體中獲取，如果沒有提供則為 null
+        line_avatar_url: req.body.line_avatar_url || null,
       };
 
       const result = await administratorService.createAdministrator(
@@ -134,6 +136,8 @@ class AdministratorController {
           username: existingAdmin.username,
           line_id: existingAdmin.line_id,
           is_admin: existingAdmin.is_admin,
+          line_avatar_url: existingAdmin.line_avatar_url,
+          createdAt: existingAdmin.createdAt,
         });
       } else {
         res.status(200).json({

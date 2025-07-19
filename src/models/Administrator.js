@@ -47,6 +47,18 @@ const Administrator = sequelize.define(
       allowNull: false,
       defaultValue: false,
     },
+    line_avatar_url: {
+      type: DataTypes.STRING(500),
+      allowNull: true,
+      validate: {
+        len: [0, 500],
+        isUrl: function (value) {
+          if (value && !/^https?:\/\/.+/.test(value)) {
+            throw new Error("LINE 大頭照連結必須是有效的 URL");
+          }
+        },
+      },
+    },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
