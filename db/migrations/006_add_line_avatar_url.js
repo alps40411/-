@@ -6,7 +6,6 @@ module.exports = {
     await queryInterface.addColumn("administrators", "line_avatar_url", {
       type: Sequelize.STRING(500),
       allowNull: true,
-      comment: "LINE 大頭照連結",
     });
   },
 
