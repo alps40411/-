@@ -62,7 +62,7 @@ class EventService {
       const { count, rows: events } = await Event.findAndCountAll({
         limit: parseInt(limit),
         offset: parseInt(offset),
-        order: [["start_time", "ASC"]],
+        order: [["createdAt", "DESC"]],
       });
 
       return {
