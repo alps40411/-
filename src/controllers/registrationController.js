@@ -33,10 +33,7 @@ class RegistrationController {
         parseInt(limit)
       );
 
-      res.status(200).json({
-        success: true,
-        data: result,
-      });
+      res.status(200).json(result);
     } catch (error) {
       next(error);
     }

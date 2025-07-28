@@ -136,7 +136,7 @@ class RegistrationService {
           ],
           limit: parseInt(limit),
           offset: parseInt(offset),
-          order: [["createdAt", "asc"]],
+          order: [["registration_time", "asc"]],
         }
       );
 
