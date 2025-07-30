@@ -66,6 +66,14 @@ class AdministratorController {
         parseInt(limit)
       );
 
+      if (!result.success) {
+        return res.status(400).json({
+          success: false,
+          message: result.message,
+          error: result.error,
+        });
+      }
+
       res.status(200).json({
         success: true,
         data: result.data,
@@ -93,6 +101,7 @@ class AdministratorController {
         res.status(404).json({
           success: false,
           message: result.message,
+          error: result.error,
         });
       }
     } catch (error) {

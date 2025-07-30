@@ -35,9 +35,18 @@ class EventController {
         parseInt(limit)
       );
 
+      if (!result.success) {
+        return res.status(400).json({
+          success: false,
+          message: result.message,
+          error: result.error,
+        });
+      }
+
       res.status(200).json({
         success: true,
-        data: result,
+        message: result.message,
+        data: result.data,
       });
     } catch (error) {
       next(error);
@@ -58,18 +67,30 @@ class EventController {
       if (!result.success) {
         // 根據錯誤訊息判斷適當的狀態碼
         if (result.message.includes("找不到")) {
-          return res.status(404).json(result);
+          return res.status(404).json({
+            success: false,
+            message: result.message,
+            error: result.error,
+          });
         } else if (result.message.includes("沒有權限")) {
-          return res.status(403).json(result);
+          return res.status(403).json({
+            success: false,
+            message: result.message,
+            error: result.error,
+          });
         } else {
-          return res.status(400).json(result);
+          return res.status(400).json({
+            success: false,
+            message: result.message,
+            error: result.error,
+          });
         }
       }
 
       res.status(200).json({
         success: true,
-        message: "活動更新成功",
-        data: result,
+        message: result.message,
+        data: result.data,
       });
     } catch (error) {
       next(error);
@@ -86,11 +107,23 @@ class EventController {
       if (!result.success) {
         // 根據錯誤訊息判斷適當的狀態碼
         if (result.message.includes("不存在")) {
-          return res.status(404).json(result);
+          return res.status(404).json({
+            success: false,
+            message: result.message,
+            error: result.error,
+          });
         } else if (result.message.includes("沒有權限")) {
-          return res.status(403).json(result);
+          return res.status(403).json({
+            success: false,
+            message: result.message,
+            error: result.error,
+          });
         } else {
-          return res.status(400).json(result);
+          return res.status(400).json({
+            success: false,
+            message: result.message,
+            error: result.error,
+          });
         }
       }
 
@@ -109,9 +142,18 @@ class EventController {
       const { id } = req.params;
       const result = await eventService.getEventRegistrationInfo(id);
 
+      if (!result.success) {
+        return res.status(404).json({
+          success: false,
+          message: result.message,
+          error: result.error,
+        });
+      }
+
       res.status(200).json({
         success: true,
-        data: result,
+        message: result.message,
+        data: result.data,
       });
     } catch (error) {
       next(error);

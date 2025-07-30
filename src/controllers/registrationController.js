@@ -16,8 +16,19 @@ class RegistrationController {
         registrationData
       );
 
-      // 只回傳data中的資訊
-      res.status(201).json(result);
+      if (!result.success) {
+        return res.status(400).json({
+          success: false,
+          message: result.message,
+          error: result.error,
+        });
+      }
+
+      res.status(201).json({
+        success: true,
+        message: result.message,
+        data: result.data,
+      });
     } catch (error) {
       next(error);
     }
@@ -33,7 +44,19 @@ class RegistrationController {
         parseInt(limit)
       );
 
-      res.status(200).json(result);
+      if (!result.success) {
+        return res.status(400).json({
+          success: false,
+          message: result.message,
+          error: result.error,
+        });
+      }
+
+      res.status(200).json({
+        success: true,
+        message: result.message,
+        data: result.data,
+      });
     } catch (error) {
       next(error);
     }
@@ -48,6 +71,14 @@ class RegistrationController {
         id,
         administratorId
       );
+
+      if (!result.success) {
+        return res.status(400).json({
+          success: false,
+          message: result.message,
+          error: result.error,
+        });
+      }
 
       res.status(200).json({
         success: true,

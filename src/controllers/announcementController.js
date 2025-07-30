@@ -38,9 +38,18 @@ class AnnouncementController {
         parseInt(limit)
       );
 
+      if (!result.success) {
+        return res.status(400).json({
+          success: false,
+          message: result.message,
+          error: result.error,
+        });
+      }
+
       res.status(200).json({
         success: true,
-        data: result,
+        message: result.message,
+        data: result.data,
       });
     } catch (error) {
       next(error);
@@ -92,6 +101,19 @@ class AnnouncementController {
         administratorId
       );
 
+      if (!result.success) {
+        const statusCode = result.message.includes("不存在") || result.message.includes("已被刪除")
+          ? 404
+          : result.message.includes("沒有權限")
+          ? 403
+          : 400;
+        return res.status(statusCode).json({
+          success: false,
+          message: result.message,
+          error: result.error,
+        });
+      }
+
       res.status(200).json({
         success: true,
         message: result.message,
@@ -108,11 +130,16 @@ class AnnouncementController {
       const result = await announcementService.getAnnouncement(id);
 
       if (!result.success) {
-        return res.status(404).json(result);
+        return res.status(404).json({
+          success: false,
+          message: result.message,
+          error: result.error,
+        });
       }
 
       res.status(200).json({
         success: true,
+        message: result.message,
         data: result.data,
       });
     } catch (error) {
